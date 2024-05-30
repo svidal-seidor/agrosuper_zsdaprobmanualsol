@@ -1,0 +1,178 @@
+{
+  "_version": "1.59.0",
+  "sap.app": {
+    "id": "wfprecios.zsdaprobmanualsol",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.13.4",
+      "toolsId": "184fb301-c970-485c-beb7-1a7d5b7c72f2"
+    },
+    "dataSources": {
+      "srvCatalogoWP": {
+        "uri": "/v2/odata/v4/catalog/",
+        "type": "OData",
+        "settings": {
+          "odataVersion": "2.0"
+        }
+      },
+      "srvCatalogoECC": {
+        "uri": "/odata/SAP/ZSD_WF_UPDATE_STAT_SOLIC_SRV/",
+        "type": "OData",
+        "settings": {
+          "odataVersion": "2.0"
+        }
+      },
+      "srvCatalogoSol": {
+        "uri": "/odata/SAP/ZSD_WF_GETDATA_SOLIC_DSCTO_SRV/",
+        "type": "OData",
+        "settings": {
+          "odataVersion": "2.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "ZOS_sd_aprobacion_manual-display": {
+          "semanticObject": "ZOS_sd_aprobacion_manual",
+          "action": "display",
+          "title": "{{flpTitle}}",
+          "subTitle": "{{flpSubtitle}}",
+          "icon": "sap-icon://BusinessSuiteInAppSymbols/icon-separate-segments",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.124.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.f": {},
+        "sap.suite.ui.generic.template": {},
+        "sap.ui.comp": {},
+        "sap.ui.generic.app": {},
+        "sap.ui.table": {},
+        "sap.ushell": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "wfprecios.zsdaprobmanualsol.i18n.i18n"
+        }
+      },
+      "srvCatalogoWP": {
+        "dataSource": "srvCatalogoWP",
+        "preload": false
+      },
+      "srvCatalogoECC": {
+        "dataSource": "srvCatalogoECC",
+        "preload": false
+      },
+      "srvCatalogoSol": {
+        "dataSource": "srvCatalogoSol",
+        "preload": false
+      }
+
+      
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "viewType": "XML",
+        "async": true,
+        "viewPath": "wfprecios.zsdaprobmanualsol.view",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "clearControlAggregation": false
+      },
+      "routes": [
+        {
+          "name": "RouteHome",
+          "pattern": ":?query:",
+          "target": [
+            "TargetHome"
+          ]
+        },
+        {
+          "name": "RouteDetalle",
+          "pattern": "{id_solicitud}",
+          "titleTarget": "",
+          "greedy": false,
+          "target": [
+            "TargetDetalle"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetHome": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "Home",
+          "viewName": "Home"
+        },
+        "TargetDetalle": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearAggregation": true,
+          "viewName": "Detalle",
+          "viewId": "Detalle",
+          "controlAggregation": "pages"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "wfprecios.zsdaprobmanualsol.view.App",
+      "type": "XML",
+      "async": true,
+      "id": "App"
+    }
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "wfprecioszsdaprobmanualsol"
+  }
+}

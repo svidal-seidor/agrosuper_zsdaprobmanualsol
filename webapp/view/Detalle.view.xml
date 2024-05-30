@@ -1,0 +1,211 @@
+<mvc:View controllerName="wfprecios.zsdaprobmanualsol.controller.Detalle"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+      xmlns:f="sap.ui.layout.form"
+    xmlns:core="sap.ui.core"
+    xmlns="sap.uxap"
+	xmlns:m="sap.m"
+    >
+    <m:Page id="page" title="{i18n>title}" showNavButton="true" navButtonPress="onBack">
+   
+             
+             	<ObjectPageLayout id="ObjectPageLayout"
+		showTitleInHeaderContent="true"
+		upperCaseAnchorBar="false">
+		<headerTitle>
+			<ObjectPageDynamicHeaderTitle>
+				<expandedHeading>
+					<m:Title text="Detalle solicitud de descuento" wrapping="true" />
+				</expandedHeading>
+
+				<snappedHeading>
+					<m:HBox>
+					
+						<m:VBox>
+							<m:Title text="Detalle solicitud de descuento" wrapping="true"/>
+						</m:VBox>
+					</m:HBox>
+				</snappedHeading>
+
+				<expandedContent>
+					<m:Label text="Secuencia: {modeloReglaActual>/DESCRSEC}"/>
+				</expandedContent>
+
+				<snappedTitleOnMobile>
+					<m:Title text=""/>
+				</snappedTitleOnMobile>
+
+			</ObjectPageDynamicHeaderTitle>
+		</headerTitle>
+
+		<headerContent>
+
+			<m:HeaderContainer id="headerContainer" scrollStep="200" showDividers="false">
+				<m:HBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+
+					<m:VBox class="sapUiSmallMarginBottom">
+                        <m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+							<m:Label text="Secuencia:" class="sapUiTinyMarginEnd"/>
+							<m:Text text="{modeloReglaActual>/DESCRSECDATOS}"/>
+						</m:HBox>
+	
+	
+                        <m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+							<m:Label text="Motivo derivacion" class="sapUiTinyMarginEnd"/>
+							<m:Text text="{modeloSolicitud>/MOTDERRECH}"/>
+						</m:HBox>
+					</m:VBox>
+				</m:HBox>
+
+
+				<m:VBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+					<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+                        <m:Label text="Precio regla:" class="sapUiTinyMarginEnd"/>
+                        <m:Text text="{modeloReglaActual>/PRECIOMIN}"/>
+                    </m:HBox>
+
+					<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+                        <m:Label text="UMP Regla:" class="sapUiTinyMarginEnd"/>
+                        <m:Text text="{modeloReglaActual>/UMPRECIO}"/>
+                    </m:HBox>
+
+				</m:VBox>
+
+				<m:VBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+					<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+                        <m:Label text="Porcentaje regla:" class="sapUiTinyMarginEnd"/>
+                        <m:Text text="{modeloReglaActual>/PORCENTAJEMIN}"/>
+                    </m:HBox>
+
+					<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+                        <m:Label text="Cantidad restante Regla:" class="sapUiTinyMarginEnd"/>
+                        <m:Text text="{modeloReglaActual>/CANTIDAD}"/>
+                    </m:HBox>
+				</m:VBox>
+
+<!--				<m:VBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+					<m:Title text="Motivo derivacion" class="sapUiTinyMarginBottom" />
+					<m:ObjectStatus text="No Cumple stock" class="sapMObjectStatusLarge"/>
+				</m:VBox>
+
+                -->
+
+			</m:HeaderContainer>
+
+		</headerContent>
+
+		<sections>
+            <ObjectPageSection titleUppercase="false" id="venta" title="Venta">
+                <subSections>
+                    <ObjectPageSubSection id="ventasb" titleUppercase="false">
+                        <blocks>
+                            <f:SimpleForm editable="false" layout="ColumnLayout">
+
+                                    <m:Label text="Ejecutivo" />
+                                    <m:Text text="{modeloSolicitud>/CODEJECUTIVO} - {modeloSolicitud>/DESCEJECUTIVO}"/>
+
+                                    <m:Label text="Material" />
+                                    <m:Text text="{modeloSolicitud>/CODMATERIAL} - {modeloSolicitud>/DESCMATERIAL}"/>
+
+                                    <m:Label text="Cantidad" />
+                                    <m:Text text="{modeloSolicitud>/CANTIDAD}"/>
+
+                                    <m:Label text="UM Venta" />
+                                    <m:Text text="{modeloSolicitud>/UMV}"/>
+
+                                    <m:Label text="Motivo" />
+                                    <m:Text text="{modeloSolicitud>/DESCMOTIVO}"/>
+
+                                    <m:Label text="Sucursal Local" />
+                                    <m:Text text="{modeloSolicitud>/CODSUCURSALLOC} - {modeloSolicitud>/DESCSUCURSALLOC}"/>
+
+                                    <m:Label text="Fecha despacho" />
+                                    <m:Text text="{modeloSolicitud>/FECHADESPACHO}"/>
+
+                            </f:SimpleForm>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+			</ObjectPageSection>
+
+
+
+            <ObjectPageSection titleUppercase="false" id="solicitud" title="Solicitud">
+                <subSections>
+                    <ObjectPageSubSection id="solicitudsb" titleUppercase="false">
+                        <blocks>
+                            <f:SimpleForm editable="false" layout="ColumnLayout">
+
+                                    <m:Label text="Precio lista" />
+                                    <m:Text text="{modeloSolicitud>/PRECIOLISTAUNI}"/>
+
+                                    <m:Label text="Precio solicitado" />
+                                    <m:Text text="{modeloSolicitud>/PRECIOWFCONDSCTOUNI}"/>
+
+                                    <m:Label text="UM Precio" />
+                                    <m:Text text="{modeloSolicitud>/UMP}"/>
+
+                                    <m:Label text="% Descto." />
+                                    <m:Text text="2{modeloSolicitud>/PORCENTAJEDSCTO}"/>
+
+                                    <m:Label text="Clasificacion" />
+                                    <m:Text text="{modeloSolicitud>/DESCCLASIFICACION}"/>
+
+                                    <m:Label text="Estado" />
+                                    <m:Text text="{modeloSolicitud>/DESCESTADO}"/>
+
+                            </f:SimpleForm>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+			</ObjectPageSection>
+
+            <ObjectPageSection titleUppercase="false" id="datosGenerales" title="Datos Generales">
+                <subSections>
+                    <ObjectPageSubSection id="datosGeneralessb" titleUppercase="false">
+                        <blocks>
+                            <f:SimpleForm editable="false" layout="ColumnLayout">
+
+                                    <m:Label text="Cliente" />
+                                    <m:Text text="{modeloSolicitud>/CODCLIENTE} - {modeloSolicitud>/DESCCLIENTE}"/>
+
+                                    <m:Label text="Local" />
+                                    <m:Text text="{modeloSolicitud>/CODLOCAL} - {modeloSolicitud>/DESCLOCAL}"/>
+
+                                    <m:Label text="Tipo de Cliente" />
+                                    <m:Text text="{modeloSolicitud>/DESCTIPOCLIENTE}"/>
+
+                                    <m:Label text="Subtipo de cliente" />
+                                    <m:Text text="{modeloSolicitud>/DESCSBTPCLIENTE}"/>
+
+                                    <m:Label text="Preventa" />
+                                    <m:Text text="{modeloSolicitud>/CODPREVENTA} - {modeloSolicitud>/DESCPREVENTA}"/>
+
+                                    <m:Label text="Vendedor" />
+                                    <m:Text text="{modeloSolicitud>/CODVENDEDOR} - {modeloSolicitud>/DESCVENDEDOR}"/>
+
+                                    <m:Label text="Fecha ingreso" />
+                                    <m:Text text="{modeloSolicitud>/FECHARECEPSOL}"/>
+
+                                    <m:Label text="Hora ingreso" />
+                                    <m:Text text="{modeloSolicitud>/HORARECEPSOL}"/>
+
+                            </f:SimpleForm>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+			</ObjectPageSection>
+
+		</sections>
+	</ObjectPageLayout>
+
+        <m:footer>
+			<m:OverflowToolbar>
+				
+				<m:Button text="Aprobar" 		 type="Success" press="fnGuardarCambiosBD" />
+                <m:ToolbarSpacer/>
+					<m:Button text="Rechazar" 		 type="Reject" press="fnGuardarCambiosBD" />
+
+			</m:OverflowToolbar>
+		</m:footer>
+    </m:Page>
+</mvc:View>

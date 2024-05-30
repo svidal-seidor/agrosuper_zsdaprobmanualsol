@@ -1,0 +1,421 @@
+
+
+<core:FragmentDefinition 
+xmlns="sap.m" 
+xmlns:core="sap.ui.core" 
+xmlns:l="sap.ui.layout" 
+xmlns:f="sap.ui.layout.form"
+xmlns:form="sap.ui.layout.form" 
+templateShareable="false"     
+xmlns:ui="sap.ui.table"
+	
+xmlns:columnmenu="sap.m.table.columnmenu"
+xmlns:sap.ui.fl="sap.ui.fl"
+xmlns:sap.ui.dt="sap.ui.dt"
+xmlns:vm="sap.ui.fl.variants"
+
+
+	>
+
+			<ui:Table
+
+id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMove" rowMode="Auto"
+        ariaLabelledBy="title" sap.ui.fl:flexibility="sap/m/flexibility/EngineFlex" 
+
+					rows="{path: 'modeloSolicitudes>/results',
+						   sorter: {path : 'HoraRecepSol'}}"
+				
+
+
+					>
+					<ui:extension>
+						<OverflowToolbar style="Clear">
+						<Title  text="Solicitudes" />
+						
+						
+						<ToolbarSpacer/>
+
+						
+						<Button icon="sap-icon://refresh" press="fnBuscarSolicitudes"/>
+						<Button icon="sap-icon://action-settings" press="openPersoDialog"/>
+						<Button icon="sap-icon://download" press="fnExportar"/>
+					</OverflowToolbar>
+					</ui:extension>
+					<ui:columns >
+				
+						<ui:Column id="DETALLE"  width="6rem"  resizable="true" autoResizable="true">
+							<Label text="Detalle" />
+							<ui:template>
+								<Button text="Detalle" press="fnVerDetalle"/>
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="PEDIDO" filterProperty="PEDIDO" sortProperty="PEDIDO"  width="6rem" resizable="true" autoResizable="true" >
+							<Label text="Pedido" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>PEDIDO}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+						
+						<ui:Column id="POSPEDIDO" filterProperty="POSPEDIDO" sortProperty="POSPEDIDO"  width="6rem" resizable="true" autoResizable="true" >
+							<Label text="Pos. Pedido" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>POSPEDIDO}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+						<ui:Column id="ESTATUS" filterProperty="ESTATUS" sortProperty="ESTATUS"  width="6rem" resizable="true" autoResizable="true" >
+							<Label text="Estatus" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>ESTATUS}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCMOTIVO" filterProperty="DESCMOTIVO" sortProperty="DESCMOTIVO"   width="6rem"  resizable="true" autoResizable="true" >
+							<Label text="Motivo" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCMOTIVO}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+						
+						<ui:Column id="FECHADESPACHO" filterProperty="FECHADESPACHO" sortProperty="FECHADESPACHO" width="6rem"  resizable="true" autoResizable="true">
+							<Label text="Fe. Entrega" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>FECHADESPACHO}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="CODLOCAL" filterProperty="CODLOCAL" sortProperty="CODLOCAL"    width="6rem"  resizable="true" autoResizable="true">
+							<Label text="Cod. Local" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODLOCAL}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="CODMATERIAL" filterProperty="CODMATERIAL" sortProperty="CODMATERIAL"  width="6rem"  resizable="true" autoResizable="true">
+							<Label text="Cod. Material" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODMATERIAL}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCMATERIAL" filterProperty="DESCMATERIAL" sortProperty="DESCMATERIAL"  width="6rem"  resizable="true" autoResizable="true" >
+							<Label text="Material" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCMATERIAL}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCTIPOCLIENTE" filterProperty="DESCTIPOCLIENTE" sortProperty="DESCTIPOCLIENTE"  width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Tp. Cliente" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCTIPOCLIENTE}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+	
+						<ui:Column id="DESCSUCURSALLOC" filterProperty="DESCSUCURSALLOC" sortProperty="DESCSUCURSALLOC"  width="6rem"  resizable="true" autoResizable="true" >
+							<Label text="Sucursal" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCSUCURSALLOC}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="PORCENTAJEDSCTO" filterProperty="PORCENTAJEDSCTO" sortProperty="PORCENTAJEDSCTO" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="% Dscto." />
+							<ui:template>
+								<Text text="{modeloSolicitudes>PORCENTAJEDSCTO}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="PRECIOWFCONDSCTOUNI" filterProperty="PRECIOWFCONDSCTOUNI" sortProperty="PRECIOWFCONDSCTOUNI"  width="6rem"  resizable="true" autoResizable="true" >
+							<Label text="Precio solicitado" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>PRECIOWFCONDSCTOUNI}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+					
+
+						<ui:Column id="CANTIDAD" filterProperty="CANTIDAD" sortProperty="CANTIDAD"  width="6rem"  resizable="true" autoResizable="true" >
+							<Label text="Cantidad" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CANTIDAD}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+							<ui:Column id="UMV" filterProperty="UMV" sortProperty="UMV"   width="6rem"  resizable="true" autoResizable="true">
+							<Label text="UM Cantidad" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>UMV}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+								<ui:Column id="PRECIOREGLA" filterProperty="PRECIOREGLA" sortProperty="PRECIOREGLA" width="6rem"  resizable="true" autoResizable="true" >
+									<Label text="Precio regla" />
+									<ui:template>
+										<Text text="{modeloSolicitudes>PRECIOREGLA}" wrapping="false" />
+									</ui:template>
+								</ui:Column>
+
+
+								<ui:Column id="UMPRECIO" filterProperty="UMPRECIO" sortProperty="UMPRECIO"   width="6rem"   resizable="true" autoResizable="true">
+									<Label text="UMP Regla" />
+									<ui:template>
+										<Text text="{modeloSolicitudes>UMPRECIO}" wrapping="false" />
+									</ui:template>
+								</ui:Column>
+
+								<ui:Column id="PROCENTREGLA" filterProperty="PROCENTREGLA" sortProperty="PROCENTREGLA" width="6rem"   resizable="true" autoResizable="true" >
+									<Label text="% Dscto. regla" />
+									<ui:template>
+										<Text text="{modeloSolicitudes>PROCENTREGLA}" wrapping="false" />
+									</ui:template>
+								</ui:Column>
+
+								<ui:Column id="CANTREGLA" filterProperty="CANTREGLA" sortProperty="CANTREGLA" width="6rem"  resizable="true" autoResizable="true" >
+									<Label text="Cantidad regla" />
+									<ui:template>
+										<Text text="{modeloSolicitudes>CANTREGLA}" wrapping="false" />
+									</ui:template>
+								</ui:Column>
+
+
+
+
+
+						<ui:Column id="CODEJECUTIVO" filterProperty="CODEJECUTIVO" sortProperty="CODEJECUTIVO" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Ejecutivo" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODEJECUTIVO}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCEJECUTIVO" filterProperty="DESCEJECUTIVO" sortProperty="DESCEJECUTIVO" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Ejecutivo" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCEJECUTIVO}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCLOCAL" filterProperty="DESCLOCAL" sortProperty="DESCLOCAL" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Local" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCLOCAL}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="CODPREVENTA" filterProperty="CODPREVENTA" sortProperty="CODEJECUTIVO" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Preventa" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODPREVENTA}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCPREVENTA" filterProperty="DESCPREVENTA" sortProperty="DESCPREVENTA" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Preventa" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCPREVENTA}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="CODVENDEDOR" filterProperty="CODVENDEDOR" sortProperty="CODVENDEDOR" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Vendedor" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODVENDEDOR}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCVENDEDOR" filterProperty="DESCVENDEDOR" sortProperty="DESCVENDEDOR" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Vendedor" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCVENDEDOR}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="CODCLIENTE" filterProperty="CODCLIENTE" sortProperty="CODCLIENTE" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Cliente" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODCLIENTE}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+						
+						<ui:Column id="DESCCLIENTE" filterProperty="DESCCLIENTE" sortProperty="CODEJECUTIVO" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cliente" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCCLIENTE}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="CODCENTRO" filterProperty="CODCENTRO" sortProperty="CODCENTRO" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Centro" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODCENTRO}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+						<ui:Column id="CODSECTOR" filterProperty="CODSECTOR" sortProperty="CODSECTOR" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Sector" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODSECTOR}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCSECTOR" filterProperty="DESCSECTOR" sortProperty="DESCSECTOR" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Sector" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCSECTOR}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="CODESTADO" filterProperty="CODESTADO" sortProperty="CODESTADO" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Estado" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODESTADO}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCESTADO" filterProperty="DESCESTADO" sortProperty="DESCESTADO" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Estado" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCESTADO}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="CODCLASIFICACION" filterProperty="CODCLASIFICACION" sortProperty="CODCLASIFICACION" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Clasificación" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODCLASIFICACION}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCCLASIFICACION" filterProperty="DESCCLASIFICACION" sortProperty="DESCCLASIFICACION" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Clasificación" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCCLASIFICACION}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="PRECIOLISTAUNI" filterProperty="PRECIOLISTAUNI" sortProperty="PRECIOLISTAUNI" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Precio de lista" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>PRECIOLISTAUNI}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="VALORRECARGOUNI" filterProperty="VALORRECARGOUNI" sortProperty="VALORRECARGOUNI" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Valor recargo" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>VALORRECARGOUNI}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="UMP" filterProperty="UMP" sortProperty="UMP" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="UMP" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>UMP}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="CODMOTIVO" filterProperty="CODMOTIVO" sortProperty="CODMOTIVO" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Motivo" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODMOTIVO}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="CODUSERAPROB" filterProperty="CODUSERAPROB" sortProperty="CODUSERAPROB" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Aprobador" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODUSERAPROB}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCUSERAPROB" filterProperty="DESCUSERAPROB" sortProperty="DESCUSERAPROB" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Aprobador" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCUSERAPROB}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="FECHARECEPSOL" filterProperty="FECHARECEPSOL" sortProperty="FECHARECEPSOL" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Fe.Recepción" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>FECHARECEPSOL}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="HORARECEPSOL" filterProperty="HORARECEPSOL" sortProperty="HORARECEPSOL" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Hora Recepción" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>HORARECEPSOL}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="FECHAAPROBSOL" filterProperty="FECHAAPROBSOL" sortProperty="FECHAAPROBSOL" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Fe.Aprobación" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>FECHAAPROBSOL}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="HORAAPROBSOL" filterProperty="HORAAPROBSOL" sortProperty="HORAAPROBSOL" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Hora Aprobación" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>HORAAPROBSOL}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="CODSUCURSALLOC" filterProperty="CODSUCURSALLOC" sortProperty="CODSUCURSALLOC" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Sucursal" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODSUCURSALLOC}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+	<ui:Column id="CODTIPOCLIENTE" filterProperty="CODTIPOCLIENTE" sortProperty="CODTIPOCLIENTE" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Tipo Cliente" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODTIPOCLIENTE}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="CODSBTPCLIENTE" filterProperty="CODSBTPCLIENTE" sortProperty="CODSBTPCLIENTE" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.SbTp.Cliente" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODSBTPCLIENTE}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="DESCSBTPCLIENTE" filterProperty="DESCSBTPCLIENTE" sortProperty="DESCSBTPCLIENTE" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Subtipo Cliente" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCSBTPCLIENTE}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+						<ui:Column id="CODGRCONDCLIENTE" filterProperty="CODGRCONDCLIENTE" sortProperty="CODGRCONDCLIENTE" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Gr.Cond.Cliente" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODGRCONDCLIENTE}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="DESCGRCONDCLIENTE" filterProperty="DESCGRCONDCLIENTE" sortProperty="DESCGRCONDCLIENTE" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Gr.Cond.Cliente" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>DESCGRCONDCLIENTE}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="TIPOPROCES" filterProperty="TIPOPROCES" sortProperty="TIPOPROCES" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Tipo Procesamiento" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>TIPOPROCES}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="CODMOTDERRECH" filterProperty="CODMOTDERRECH" sortProperty="CODMOTDERRECH" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Cod.Motivo Rech/Dev" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>CODMOTDERRECH}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+												<ui:Column id="MOTDERRECH" filterProperty="MOTDERRECH" sortProperty="MOTDERRECH" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="Motivo Rech/Dev" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>MOTDERRECH}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+	
+		
+					</ui:columns>
+				</ui:Table>
+
+                      
+</core:FragmentDefinition>
