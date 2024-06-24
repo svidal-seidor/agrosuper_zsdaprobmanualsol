@@ -14,14 +14,14 @@
 		<headerTitle>
 			<ObjectPageDynamicHeaderTitle>
 				<expandedHeading>
-					<m:Title text="Detalle solicitud de descuento" wrapping="true" />
+					<m:Title text="Detalle solicitud de descuento: Pedido {modeloSolicitud>/PEDIDO} - {modeloSolicitud>/POSPEDIDO} " wrapping="true" />
 				</expandedHeading>
 
 				<snappedHeading>
 					<m:HBox>
 					
 						<m:VBox>
-							<m:Title text="Detalle solicitud de descuento" wrapping="true"/>
+							<m:Title text="Detalle solicitud de descuento: Pedido {modeloSolicitud>/PEDIDO} - {modeloSolicitud>/POSPEDIDO}" wrapping="true"/>
 						</m:VBox>
 					</m:HBox>
 				</snappedHeading>
@@ -44,7 +44,7 @@
 
 					<m:VBox class="sapUiSmallMarginBottom">
                         <m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
-							<m:Label text="Secuencia:" class="sapUiTinyMarginEnd"/>
+							<m:Label text="Secuencia aplicada:" class="sapUiTinyMarginEnd"/>
 							<m:Text text="{modeloReglaActual>/DESCRSECDATOS}"/>
 						</m:HBox>
 	
@@ -60,7 +60,7 @@
 				<m:VBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
 					<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
                         <m:Label text="Precio regla:" class="sapUiTinyMarginEnd"/>
-                        <m:Text text="{modeloReglaActual>/PRECIOMIN}"/>
+                        <m:Text text="{path: 'modeloReglaActual>/PRECIOMIN', formatter: '.formatter.separadorMiles' }"/>
                     </m:HBox>
 
 					<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
@@ -73,12 +73,12 @@
 				<m:VBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
 					<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
                         <m:Label text="Porcentaje regla:" class="sapUiTinyMarginEnd"/>
-                        <m:Text text="{modeloReglaActual>/PORCENTAJEMIN}"/>
+                        <m:Text text="{path: 'modeloReglaActual>/PORCENTAJEMIN', formatter: '.formatter.separadorMiles' }"/>
                     </m:HBox>
 
 					<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
                         <m:Label text="Cantidad restante Regla:" class="sapUiTinyMarginEnd"/>
-                        <m:Text text="{modeloReglaActual>/CANTIDAD}"/>
+                        <m:Text text="{path: 'modeloReglaActual>/CANTIDAD', formatter: '.formatter.separadorMiles' } "/>
                     </m:HBox>
 				</m:VBox>
 
@@ -136,16 +136,16 @@
                             <f:SimpleForm editable="false" layout="ColumnLayout">
 
                                     <m:Label text="Precio lista" />
-                                    <m:Text text="{modeloSolicitud>/PRECIOLISTAUNI}"/>
+                                    <m:Text text="{path: 'modeloSolicitud>/PRECIOLISTAUNI', formatter: '.formatter.separadorMiles' } "/>
 
                                     <m:Label text="Precio solicitado" />
-                                    <m:Text text="{modeloSolicitud>/PRECIOWFCONDSCTOUNI}"/>
+                                    <m:Text text="{path: 'modeloSolicitud>/PRECIOWFCONDSCTOUNI', formatter: '.formatter.separadorMiles' } "/>
 
                                     <m:Label text="UM Precio" />
                                     <m:Text text="{modeloSolicitud>/UMP}"/>
 
                                     <m:Label text="% Descto." />
-                                    <m:Text text="2{modeloSolicitud>/PORCENTAJEDSCTO}"/>
+                                    <m:Text text="{path: 'modeloSolicitud>/PORCENTAJEDSCTO', formatter: '.formatter.separadorMiles' } "/>
 
                                     <m:Label text="Clasificacion" />
                                     <m:Text text="{modeloSolicitud>/DESCCLASIFICACION}"/>
@@ -201,9 +201,9 @@
         <m:footer>
 			<m:OverflowToolbar>
 				
-				<m:Button text="Aprobar" 		 type="Success" press="fnGuardarCambiosBD" />
+				<m:Button text="Aprobar" 		 type="Success" press="fnAprobarMasivo" />
                 <m:ToolbarSpacer/>
-					<m:Button text="Rechazar" 		 type="Reject" press="fnGuardarCambiosBD" />
+					<m:Button text="Rechazar" 	class="botonReject"	 type="Unstyled"	 press="fnRechazarMasivo" />
 
 			</m:OverflowToolbar>
 		</m:footer>

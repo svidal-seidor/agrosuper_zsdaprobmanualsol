@@ -21,49 +21,60 @@ xmlns:vm="sap.ui.fl.variants"
 
 id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMove" rowMode="Auto"
         ariaLabelledBy="title" sap.ui.fl:flexibility="sap/m/flexibility/EngineFlex" 
-
+	alternateRowColors="true"
 					rows="{path: 'modeloSolicitudes>/results',
-						   sorter: {path : 'HoraRecepSol'}}"
+						   sorter: {path : 'HORARECEPSOL'}}"
 				
 
 
 					>
+
+  
+          
 					<ui:extension>
-						<OverflowToolbar style="Clear">
-						<Title  text="Solicitudes" />
 						
+
+						<OverflowToolbar style="Clear">
+						
+						<Title  text="Solicitudes" />
+		
 						
 						<ToolbarSpacer/>
 
 						
-						<Button icon="sap-icon://refresh" press="fnBuscarSolicitudes"/>
+						<Button icon="sap-icon://refresh" press="fnActualizarDesdeTabla"/>
 						<Button icon="sap-icon://action-settings" press="openPersoDialog"/>
 						<Button icon="sap-icon://download" press="fnExportar"/>
 					</OverflowToolbar>
 					</ui:extension>
-					<ui:columns >
+					
+					 <!--<ui:rowSettingsTemplate>
+						<ui:RowSettings highlight="Warning" highlightText=""/>
+					</ui:rowSettingsTemplate>
+					-->
+					<ui:columns  >
 				
-						<ui:Column id="DETALLE"  width="6rem"  resizable="true" autoResizable="true">
+						<ui:Column  id="DETALLE"  width="6rem"  resizable="true" autoResizable="true">
 							<Label text="Detalle" />
 							<ui:template>
 								<Button text="Detalle" press="fnVerDetalle"/>
 							</ui:template>
 						</ui:Column>
 
-						<ui:Column id="PEDIDO" filterProperty="PEDIDO" sortProperty="PEDIDO"  width="6rem" resizable="true" autoResizable="true" >
+						<ui:Column id="PEDIDO" visible="false" filterProperty="PEDIDO" sortProperty="PEDIDO"  width="6rem" resizable="true" autoResizable="true" >
 							<Label text="Pedido" />
 							<ui:template>
 								<Text text="{modeloSolicitudes>PEDIDO}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
 						
-						<ui:Column id="POSPEDIDO" filterProperty="POSPEDIDO" sortProperty="POSPEDIDO"  width="6rem" resizable="true" autoResizable="true" >
+						<ui:Column id="POSPEDIDO" visible="false" filterProperty="POSPEDIDO" sortProperty="POSPEDIDO"  width="6rem" resizable="true" autoResizable="true" >
 							<Label text="Pos. Pedido" />
 							<ui:template>
 								<Text text="{modeloSolicitudes>POSPEDIDO}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
-						<ui:Column id="ESTATUS" filterProperty="ESTATUS" sortProperty="ESTATUS"  width="6rem" resizable="true" autoResizable="true" >
+						<ui:Column id="ESTATUS" visible="false" filterProperty="ESTATUS" sortProperty="ESTATUS"  width="6rem" resizable="true" autoResizable="true" >
 							<Label text="Estatus" />
 							<ui:template>
 								<Text text="{modeloSolicitudes>ESTATUS}" wrapping="false" />
@@ -80,7 +91,7 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 						<ui:Column id="FECHADESPACHO" filterProperty="FECHADESPACHO" sortProperty="FECHADESPACHO" width="6rem"  resizable="true" autoResizable="true">
 							<Label text="Fe. Entrega" />
 							<ui:template>
-								<Text text="{modeloSolicitudes>FECHADESPACHO}" wrapping="false" />
+								<Text text=" {path: 'modeloSolicitudes>FECHADESPACHO', formatter: '.formatter.fechaHumano'}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
 
@@ -122,14 +133,17 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 						<ui:Column id="PORCENTAJEDSCTO" filterProperty="PORCENTAJEDSCTO" sortProperty="PORCENTAJEDSCTO" width="6rem"   resizable="true" autoResizable="true" >
 							<Label text="% Dscto." />
 							<ui:template>
-								<Text text="{modeloSolicitudes>PORCENTAJEDSCTO}" wrapping="false" />
+							
+							<Text text="{path: 'modeloSolicitudes>PORCENTAJEDSCTO', formatter: '.formatter.montoDecimal'}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
 
 						<ui:Column id="PRECIOWFCONDSCTOUNI" filterProperty="PRECIOWFCONDSCTOUNI" sortProperty="PRECIOWFCONDSCTOUNI"  width="6rem"  resizable="true" autoResizable="true" >
 							<Label text="Precio solicitado" />
 							<ui:template>
-								<Text text="{modeloSolicitudes>PRECIOWFCONDSCTOUNI}" wrapping="false" />
+								<Text text="{path: 'modeloSolicitudes>PRECIOWFCONDSCTOUNI', formatter: '.formatter.separadorMiles' }"
+							
+								 wrapping="false" />
 							</ui:template>
 						</ui:Column>
 
@@ -138,7 +152,7 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 						<ui:Column id="CANTIDAD" filterProperty="CANTIDAD" sortProperty="CANTIDAD"  width="6rem"  resizable="true" autoResizable="true" >
 							<Label text="Cantidad" />
 							<ui:template>
-								<Text text="{modeloSolicitudes>CANTIDAD}" wrapping="false" />
+								<Text text="{path: 'modeloSolicitudes>CANTIDAD', formatter: '.formatter.separadorMiles' }" wrapping="false" />
 							</ui:template>
 						</ui:Column>
 
@@ -152,7 +166,7 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 								<ui:Column id="PRECIOREGLA" filterProperty="PRECIOREGLA" sortProperty="PRECIOREGLA" width="6rem"  resizable="true" autoResizable="true" >
 									<Label text="Precio regla" />
 									<ui:template>
-										<Text text="{modeloSolicitudes>PRECIOREGLA}" wrapping="false" />
+										<Text text="{path: 'modeloSolicitudes>PRECIOREGLA', formatter: '.formatter.separadorMiles'}" wrapping="false" />
 									</ui:template>
 								</ui:Column>
 
@@ -167,14 +181,14 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 								<ui:Column id="PROCENTREGLA" filterProperty="PROCENTREGLA" sortProperty="PROCENTREGLA" width="6rem"   resizable="true" autoResizable="true" >
 									<Label text="% Dscto. regla" />
 									<ui:template>
-										<Text text="{modeloSolicitudes>PROCENTREGLA}" wrapping="false" />
+										<Text text="{path: 'modeloSolicitudes>PROCENTREGLA', formatter: '.formatter.montoDecimal'}" wrapping="false" />
 									</ui:template>
 								</ui:Column>
 
 								<ui:Column id="CANTREGLA" filterProperty="CANTREGLA" sortProperty="CANTREGLA" width="6rem"  resizable="true" autoResizable="true" >
 									<Label text="Cantidad regla" />
 									<ui:template>
-										<Text text="{modeloSolicitudes>CANTREGLA}" wrapping="false" />
+										<Text text="{path: 'modeloSolicitudes>CANTREGLA', formatter: '.formatter.separadorMiles'}" wrapping="false" />
 									</ui:template>
 								</ui:Column>
 
@@ -238,7 +252,7 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 							</ui:template>
 						</ui:Column>
 						
-						<ui:Column id="DESCCLIENTE" filterProperty="DESCCLIENTE" sortProperty="CODEJECUTIVO" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+						<ui:Column id="DESCCLIENTE" filterProperty="DESCCLIENTE" sortProperty="DESCCLIENTE" visible="false" width="6rem"   resizable="true" autoResizable="true" >
 							<Label text="Cliente" />
 							<ui:template>
 								<Text text="{modeloSolicitudes>DESCCLIENTE}" wrapping="false" />
@@ -293,7 +307,7 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 												<ui:Column id="PRECIOLISTAUNI" filterProperty="PRECIOLISTAUNI" sortProperty="PRECIOLISTAUNI" visible="false" width="6rem"   resizable="true" autoResizable="true" >
 							<Label text="Precio de lista" />
 							<ui:template>
-								<Text text="{modeloSolicitudes>PRECIOLISTAUNI}" wrapping="false" />
+								<Text text="{path: 'modeloSolicitudes>PRECIOLISTAUNI', formatter: '.formatter.separadorMiles'}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
 
@@ -316,7 +330,7 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 								<Text text="{modeloSolicitudes>CODMOTIVO}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
-												<ui:Column id="CODUSERAPROB" filterProperty="CODUSERAPROB" sortProperty="CODUSERAPROB" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+						<ui:Column id="CODUSERAPROB" filterProperty="CODUSERAPROB" sortProperty="CODUSERAPROB" visible="false" width="6rem"   resizable="true" autoResizable="true" >
 							<Label text="Cod.Aprobador" />
 							<ui:template>
 								<Text text="{modeloSolicitudes>CODUSERAPROB}" wrapping="false" />
@@ -329,10 +343,11 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 								<Text text="{modeloSolicitudes>DESCUSERAPROB}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
-												<ui:Column id="FECHARECEPSOL" filterProperty="FECHARECEPSOL" sortProperty="FECHARECEPSOL" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+						
+						<ui:Column id="FECHARECEPSOL" filterProperty="FECHARECEPSOL" sortProperty="FECHARECEPSOL" visible="false" width="6rem"   resizable="true" autoResizable="true" >
 							<Label text="Fe.Recepción" />
 							<ui:template>
-								<Text text="{modeloSolicitudes>FECHARECEPSOL}" wrapping="false" />
+								<Text text="{path: 'modeloSolicitudes>FECHARECEPSOL', formatter: '.formatter.fechaHumano'} " wrapping="false" />
 							</ui:template>
 						</ui:Column>
 
@@ -342,10 +357,11 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 								<Text text="{modeloSolicitudes>HORARECEPSOL}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
-												<ui:Column id="FECHAAPROBSOL" filterProperty="FECHAAPROBSOL" sortProperty="FECHAAPROBSOL" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+						
+						<ui:Column id="FECHAAPROBSOL" filterProperty="FECHAAPROBSOL" sortProperty="FECHAAPROBSOL" visible="false" width="6rem"   resizable="true" autoResizable="true" >
 							<Label text="Fe.Aprobación" />
 							<ui:template>
-								<Text text="{modeloSolicitudes>FECHAAPROBSOL}" wrapping="false" />
+								<Text text="{path: 'modeloSolicitudes>FECHAAPROBSOL', formatter: '.formatter.fechaHumano'}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
 

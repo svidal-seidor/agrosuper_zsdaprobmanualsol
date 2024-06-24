@@ -1,12 +1,13 @@
 <mvc:View controllerName="wfprecios.zsdaprobmanualsol.controller.Home"
     xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
     xmlns="sap.m"
+    xmlns:l="sap.ui.layout"
     xmlns:core="sap.ui.core"
     xmlns:columnmenu="sap.m.table.columnmenu"
-xmlns:sap.ui.fl="sap.ui.fl"
-xmlns:sap.ui.dt="sap.ui.dt"
-xmlns:vm="sap.ui.fl.variants"
-xmlns:ui="sap.ui.table"
+    xmlns:sap.ui.fl="sap.ui.fl"
+    xmlns:sap.ui.dt="sap.ui.dt"
+    xmlns:vm="sap.ui.fl.variants"
+    xmlns:ui="sap.ui.table"
     >
     <Page id="page" title="{i18n>title} {i18n>version}">
 
@@ -15,14 +16,17 @@ xmlns:ui="sap.ui.table"
 		id="idIconTabBarFiori2"
 		expanded="{device>/isNoPhone}"
         select="onSelectTab"
-		class="sapUiResponsiveContentPadding">
+        
+		class="sapUiResponsiveContentPadding botonTab">
             <items>
                 <IconTabFilter
                     text="Todo"
                     icon="sap-icon://group"
                     key="todo"
                     count="{modelDatos>/cantidades/CantTotal}"
-                    iconColor="Neutral">
+                    class="botonTab"
+                    iconColor="Neutral"
+                    >
                
                 </IconTabFilter>
                 <IconTabSeparator />
@@ -33,7 +37,7 @@ xmlns:ui="sap.ui.table"
                     icon="sap-icon://monitor-payments"
                     key="vendedor"
                     count="{modelDatos>/cantidades/CantVendedor}"
-                    iconColor="Neutral">
+                    iconColor="Default">
                   
                 </IconTabFilter>
 
@@ -42,7 +46,7 @@ xmlns:ui="sap.ui.table"
                     icon="sap-icon://activity-items"
                     key="preventa"
                     count="{modelDatos>/cantidades/CantPreventa}"
-                    iconColor="Neutral">
+                    iconColor="Default">
       
                 </IconTabFilter>
 
@@ -52,7 +56,7 @@ xmlns:ui="sap.ui.table"
                     icon="sap-icon://phone"
                     key="call_center"
                     count="{modelDatos>/cantidades/CantCallCenter}"
-                    iconColor="Neutral">
+                    iconColor="Default">
                    
                 </IconTabFilter>
 
@@ -63,7 +67,7 @@ xmlns:ui="sap.ui.table"
                     icon="sap-icon://home"
                     key="tradicional"
                     count="{modelDatos>/cantidades/CantTradicional}"
-                    iconColor="Neutral">
+                    iconColor="Default">
                    
                 </IconTabFilter>
 
@@ -72,7 +76,7 @@ xmlns:ui="sap.ui.table"
                     icon="sap-icon://meal"
                     key="foodservice"
                     count="{modelDatos>/cantidades/CantFoodservice}"
-                    iconColor="Neutral">
+                    iconColor="Default">
                    
                 </IconTabFilter>
 
@@ -82,7 +86,7 @@ xmlns:ui="sap.ui.table"
                     icon="sap-icon://factory"
                     key="industriales"
                     count="{modelDatos>/cantidades/CantIndustriales}"
-                    iconColor="Neutral">
+                    iconColor="Default">
                   
                 </IconTabFilter>
                 
@@ -91,7 +95,7 @@ xmlns:ui="sap.ui.table"
                     icon="sap-icon://globe"
                     key="grandes_clientes"
                     count="{modelDatos>/cantidades/CantGrandesClientes}"
-                    iconColor="Neutral">
+                    iconColor="Default">
                   
                 </IconTabFilter>
 
@@ -100,22 +104,38 @@ xmlns:ui="sap.ui.table"
                     icon="sap-icon://cart"
                     key="supermercados"
                     count="{modelDatos>/cantidades/CantSupermercados}"
-                    iconColor="Neutral">
+                    iconColor="Default">
                   
                 </IconTabFilter>
 
             </items>
         </IconTabBar>
 
+    
+
+
+<!--
+
+    <l:HorizontalLayout class="sapUiContentPadding">
+      
+        <Label text="Fecha de Entrega" />
+            <DynamicDateRange 
+            id="dynamic-range"
+            change="onChange"
+            width="200px"/>
+    </l:HorizontalLayout>
+ -->
+
+
    <core:Fragment fragmentName="wfprecios.zsdaprobmanualsol.view.fragments.tabla_solicitudes"  type="XML"/> 
 
         		<footer>
 			<OverflowToolbar>
-				<Button text="Prueba odata POST" press="fnOdataTestPost"></Button>
-                <Button  text="Prueba odata GET" press="fnOdataGet"></Button>
+				<Button text="Prueba odata POST" press="fnOdataTestPost"></Button> 
+              <!--  <Button  text="Prueba odata GET" press="fnOdataGet"></Button>-->
 				<Button text="Aprobar" 		 type="Success" press="fnAprobarMasivo" />
                 <ToolbarSpacer/>
-					<Button text="Rechazar" 		 type="Reject" press="fnRechazoMasivo" />
+				<Button text="Rechazar" 	class="botonReject"	 type="Unstyled" press="fnRechazarMasivo" />
 
 			</OverflowToolbar>
 		</footer>

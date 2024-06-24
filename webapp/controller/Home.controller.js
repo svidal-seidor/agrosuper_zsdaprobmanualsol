@@ -7,21 +7,25 @@ sap.ui.define([
     'sap/ui/model/Sorter',
     'sap/ui/core/library',
     'sap/m/table/ColumnWidthController',
-    "sap/ui/export/Spreadsheet"
+    "sap/ui/export/Spreadsheet",
+    "../model/formatter"
+
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Engine, SortController, GroupController, MetadataHelper, Sorter, CoreLibrary, ColumnWidthController, Spreadsheet) {
+    function (Controller, Engine, SortController, GroupController, MetadataHelper, Sorter, CoreLibrary, ColumnWidthController, Spreadsheet, formatter) {
         "use strict";
 
         return Controller.extend("wfprecios.zsdaprobmanualsol.controller.Home", {
 
             usuario: "",
+            usuarioBTP:  "",
+            formatter: formatter,
 
             onInit:  function () {
 
-                this.fnCargarInformacion();
+          
 
                 this._registerForP13n();
 
@@ -36,7 +40,8 @@ sap.ui.define([
                     CantIndustriales: 0,
                     CantGrandesClientes: 0,
                     CantSupermercados: 0,
-                  }
+                  },
+                  moneda : "CLP"
                 };
 
                 var oJsonModelDatos = new sap.ui.model.json.JSONModel(oDatos);
@@ -44,8 +49,195 @@ sap.ui.define([
 
 
                 //Validar
-               // this.fnObtenerUsuario();
+                this.fnCargarInformacionFiltros();
             },
+
+            fnCargarInformacionFiltros: async function(){
+
+              let oDatos = await this.fnObtenerUsuario();
+              this.usuarioBTP = oDatos.USUARIOSAP;
+
+              
+              if(!this.usuarioBTP){
+                sap.m.MessageBox.information("Usted no está registrado como usuario aprobador en BTP, solicite su asignación");
+              }
+              else{
+         
+                let bRes = await this.fnObtenerReglaActualPromesa();
+     
+                  //obtener solicitudes
+                  this.fnBuscarSolicitudesFiltros();
+                
+                    
+              }
+
+            },
+
+            fnActualizarDesdeTabla: async function(){
+        
+              let oDatos = await this.fnObtenerUsuario();
+              this.usuarioBTP = oDatos.USUARIOSAP;
+
+
+              if(!this.usuarioBTP){
+                sap.m.MessageBox.information("Usted no está registrado como usuario aprobador en BTP, solicite su asignación");
+              }
+              else{
+         
+                let bRes = await this.fnObtenerReglaActualPromesa();
+     
+                  //obtener solicitudes
+                  this.fnBuscarSolicitudesFiltros();
+                
+                    
+              }
+
+
+            },
+
+            fnObtenerReglaActual: async function(){
+
+
+              let oModel = this.getOwnerComponent().getModel("srvCatalogoWP");
+              let sEntity = "/ZVINFOMAXREGLA";
+              let that = this;
+
+
+              oModel.read(sEntity,{
+                  success: function(oReq, oRes){
+                      let oDatos = oRes.data;
+                      let oJsonModel = new sap.ui.model.json.JSONModel(oDatos);
+                      that.getView().setModel(oJsonModel, "modeloReglaActual");
+                      that.getView().getModel("modeloReglaActual").refresh();
+
+                      that.fnBuscarSolicitudes();
+
+                               },
+                  error: function(oError){
+                      console.log(oError);
+                  }
+              });
+
+            },
+
+            fnObtenerReglaActualPromesa: async function(){
+
+              const oPromise = await new Promise((resolve, reject) => {
+
+
+                    //let sFechaHoy = formatter.fechaLocalHoy();
+                    let sFechaHoy = new Date();
+
+                    let oModel = this.getOwnerComponent().getModel("srvCatalogoWP");
+                    let that = this;
+                    let sEntity = "/ZVINFOMAXREGLA";
+
+                   /* let aFiltros = [];
+                    let oFilter3 = new sap.ui.model.Filter("FECHACARGA", sap.ui.model.FilterOperator.EQ, sFechaHoy);
+                    aFiltros.push(oFilter3);
+                    let oFiltroFinal = new sap.ui.model.Filter({ filters: aFiltros, and: false });
+                    */
+    
+                    try {
+      
+       
+                     oModel.read(sEntity,{
+                          success: function (oData, oResponse) {
+                            let oDatos = oResponse.data;
+                            let oJsonModel = new sap.ui.model.json.JSONModel(oDatos);
+                            that.getView().setModel(oJsonModel, "modeloReglaActual");
+                            that.getView().getModel("modeloReglaActual").refresh();
+      
+                            resolve(true);
+                          },
+                          error: function (oError) {
+                            resolve(true);
+                            console.log('SE PRODUJO UN ERROR: ' + oError)
+                          },
+                        });
+                      }
+                      catch (err) {
+                        resolve(false);
+                      }
+
+                });
+            
+
+                return oPromise;
+               },
+
+
+            fnObtenerUsuario: async function(){
+
+              const oPromise = await new Promise((resolve, reject) => {
+
+
+                
+                this.usuario = "svidal@seidor.com";
+  
+                let sEmail = "";
+                if (sap.ushell.Container !== undefined) {
+                    sEmail = sap.ushell.Container.getUser().getEmail();
+                  if(sEmail == undefined){
+                    sEmail =  this.usuario;
+                  }
+                }else{
+                  sEmail =  this.usuario;
+                }
+
+                  if(sEmail){
+
+                    this.usuario = sEmail;
+
+                    let oModel = this.getOwnerComponent().getModel("srvCatalogoWP");
+                    let that = this;
+                    let sEntity = "/ZSD_TB_USUARIOS";
+                    let aFiltros = [];
+                    let oFilter3 = new sap.ui.model.Filter("USUARIOBTP", sap.ui.model.FilterOperator.EQ, this.usuario);
+                    aFiltros.push(oFilter3);
+    
+                    let oFiltroFinal = new sap.ui.model.Filter({ filters: aFiltros, and: false });
+                    
+    
+                    try {
+      
+                     oModel.read(sEntity,{
+                          filters: [oFiltroFinal],
+                          success: function (oData, oResponse) {
+                            let oDatos = oResponse.data;
+                            if(oDatos.results.length > 0){
+                              resolve(oDatos.results[0]);
+                            }
+                            else{
+                              resolve("");
+                            }
+                           
+                          },
+                          error: function (oError) {
+                            resolve("");
+                            console.log('SE PRODUJO UN ERROR: ' + oError)
+                          },
+                        });
+                      }
+                      catch (err) {
+                        let oDatos = oRes.data;
+                        resolve("");
+                      }
+                   }else{
+                    resolve("");
+                   }
+      
+                }
+
+
+               
+
+                );
+            
+
+
+                return oPromise;
+               },
 
         
             onSelectTab: function(oEvent){
@@ -180,7 +372,46 @@ sap.ui.define([
                     {
                       property: "CANTREGLA",
                       label: "Cantidad regla"
-                    }
+                    },
+                    
+{ property: "CODEJECUTIVO", label: "Cod.Ejecutivo"},
+{ property: "DESCEJECUTIVO", label: "Ejecutivo"},
+{ property: "PEDIDO", label: "Pedido"},
+{ property: "POSPEDIDO", label: "Pos.Pedido"},
+{ property: "DESCLOCAL", label: "Local"},
+{ property: "CODPREVENTA", label: "Cod.Preventa"},
+{ property: "DESCPREVENTA", label: "Preventa"},
+{ property: "CODVENDEDOR", label: "Cod.Vendedor"},
+{ property: "DESCVENDEDOR", label: "Vendedor"},
+{ property: "CODCLIENTE", label: "Cod.Cliente"},
+{ property: "DESCCLIENTE", label: "Cliente"},
+{ property: "CODCENTRO", label: "Cod.Centro"},
+{ property: "CODSECTOR", label: "Cod.Sector"},
+{ property: "DESCSECTOR", label: "Sector"},
+{ property: "CODESTADO", label: "Cod.Estado"},
+{ property: "DESCESTADO", label: "Estado"},
+{ property: "CODCLASIFICACION", label: "Cod.Clasificación"},
+{ property: "DESCCLASIFICACION", label: "Clasificación"},
+{ property: "PRECIOLISTAUNI", label: "Precio de lista"},
+{ property: "VALORRECARGOUNI", label: "Valor recargo"},
+{ property: "UMP", label: "UMP"},
+{ property: "CODMOTIVO", label: "Cod.Motivo"},
+{ property: "ESTATUS", label: "Estatus"},
+{ property: "CODUSERAPROB", label: "Cod.Aprobador"},
+{ property: "DESCUSERAPROB", label: "Aprobador"},
+{ property: "FECHARECEPSOL", label: "Fe.Recepción"},
+{ property: "HORARECEPSOL", label: "Hora Recepción"},
+{ property: "FECHAAPROBSOL", label: "Fe.Aprobación"},
+{ property: "HORAAPROBSOL", label: "Hora Aprobación"},
+{ property: "CODSUCURSALLOC", label: "Cod.Sucursal"},
+{ property: "CODTIPOCLIENTE", label: "Cod.Tipo Cliente"},
+{ property: "CODSBTPCLIENTE", label: "Cod.SbTp.Cliente"},
+{ property: "DESCSBTPCLIENTE", label: "Subtipo Cliente"},
+{ property: "CODGRCONDCLIENTE", label: "Cod.Gr.Cond.Cliente"},
+{ property: "DESCGRCONDCLIENTE", label: "Gr.Cond.Cliente"},
+{ property: "TIPOPROCES", label: "Tipo Procesamiento"},
+{ property: "CODMOTDERRECH", label: "Cod.Motivo Rech/Dev"},
+{ property: "MOTDERRECH", label: "Motivo Rech/Dev"}
                     ];
             },
 
@@ -462,7 +693,7 @@ sap.ui.define([
 
               oState.Columns.forEach(function(oProp, iIndex) {
                 const oCol = this.byId(oProp.key);
-                console.log(oCol);
+              //  console.log(oCol);
                 oCol.setVisible(true);
 
                 oTable.removeColumn(oCol);
@@ -567,6 +798,7 @@ sap.ui.define([
                 sap.m.MessageBox.information("Debe seleccionar un registro");
                 return;
               }
+
               for(let i in aItemsTable)
               {
                   let oItemSet =  this.getView().byId("tabla_ok").getContextByIndex(aItemsTable[i]);
@@ -592,30 +824,66 @@ sap.ui.define([
                                 //obtenemos el primer registro
                                 let oRegla = oReglaS[0];
 
-                                let dFecha = new Date().toJSON().substring(0,10);
-                                let aFecha = dFecha.split("-");
-                                let sFecha = aFecha[2]+"-"+aFecha[1]+"-"+aFecha[0];
+                                let sFecha = formatter.fechaLocalHoyBD();
                   
                                 let oHora = new Date().toLocaleTimeString();
-                                oRegla.CANTIDAD = oRegla.CANTIDAD;
-                                oRegla.USUARIO = this.usuario;
-                                oRegla.HORACARGA = oHora;
+                               // oRegla.CANTIDAD = oRegla.CANTIDAD;
+                               // oRegla.USUARIO = this.usuario;
+                               // oRegla.HORACARGA = oHora;
                   
-              
-                                this.fnActualizarSolicitudBTP(oItem.IDDCTOBTP, "R", sFecha, oHora, null, null, null, null);
+                              
+                                this.fnActualizarSolicitudBTP(oItem, "R", sFecha, oHora, oRegla.PRECIOMIN, oRegla.CANTIDAD, oRegla.PORCENTAJEMIN, oRegla.IDREGLA);
                                 this.fnActualizarSolicitudECC(oItem, "R");
 
 
 
                               }else{
+
+                                let oModel = this.getView().getModel("modeloReglaActual").getData().results;
+
+                                let aEsta = oModel.filter(obj=>obj.FK_ZSD_TB_SECUENC_IDSECUENCIA == oItem.FK_ZSD_TB_SECUENC_IDSECUENCIA);
+                                let oRegla = {
+                                  PRECIOREGLA:null,
+                                  PROCENTREGLA:null,
+                                  CANTREGLA:null,
+                                  UMPRECIO:null,
+                                  IDREGLA:null,
+                                };
+
+                                
+                                if(aEsta.length > 0){
+      
+                                  let sDescSec = aEsta[0].DESCRSEC;
+                                  let aCampos = sDescSec.split("/");
+                                  let sDescSecDatos = "";
+                                  aCampos.forEach(element => {
+                                      sDescSecDatos = sDescSecDatos + elemento[element] + "/";
+                                  });
+      
+                                  sDescSecDatos = sDescSecDatos.substring(0,sDescSecDatos.length -1 );
+      
+                                  let oModel = this.getView().getModel("modeloReglaActual").getData().results;
+
+                                  let oReglaS =  oModel.filter(obj=>obj.DESCRSECDATOS == sDescSecDatos);
+      
+                                  if(oReglaS.length>0){
+                                    oRegla.PRECIOREGLA = oReglaS[0].PRECIOMIN;
+                                    oRegla.PROCENTREGLA = oReglaS[0].PORCENTAJEMIN;
+                                    oRegla.CANTREGLA = oReglaS[0].CANTIDAD;
+                                    oRegla.UMPRECIO  = oReglaS[0].UMPRECIO;
+                                    oRegla.IDREGLA = oReglaS[0].IDREGLA;
+                                  }
+
+                                }
+
+
                                 //se debe solo actualizar el registro no mas en la tabla BTP
-                                let dFecha = new Date().toJSON().substring(0,10);
-                                let aFecha = dFecha.split("-");
-                                let sFecha = aFecha[2]+"-"+aFecha[1]+"-"+aFecha[0];
+
+                                let sFecha = formatter.fechaLocalHoyBD();
 
                                 let oHora = new Date().toLocaleTimeString();
 
-                                this.fnActualizarSolicitudBTP(oItem.IDDCTOBTP, "R", sFecha, oHora, null, null, null, null);
+                                this.fnActualizarSolicitudBTP(oItem, "R", sFecha, oHora, oRegla.PRECIOREGLA, oRegla.CANTREGLA, oRegla.PROCENTREGLA, oRegla.IDREGLA);
                                 this.fnActualizarSolicitudECC(oItem, "R");
                               }
                                 
@@ -637,10 +905,12 @@ sap.ui.define([
                 sap.m.MessageBox.information("Debe seleccionar un registro");
                 return;
               }
+
+              
               for(let i in aItemsTable)
               {
                   let oItemSet =  this.getView().byId("tabla_ok").getContextByIndex(aItemsTable[i]);
-                  
+                  let bProcesar = false;
                   let oItem = oItemSet.getObject();
                   //validar si alguno registro del bloque tiene problemas
                     let sResultado = await this.fnValidarEstadoSolicitud(oItem);
@@ -655,22 +925,18 @@ sap.ui.define([
         
                                 if(oItem.FK_ZSD_TB_REGLAS_IDREGLA != null && oItem.FK_ZSD_TB_REGLAS_IDREGLA != "" ){
 
-                                  if(oItem.CODMOTDERRECH != "006" && oItem.CODMOTDERRECH != null){
-                                    sap.m.MessageBox.information("Se aprueba solicitud con UMP Errónea, se debe corregir regla");
-                                  }
-                                    
+                            
                                   //obtener datos de la regla actual segun la secuencia
                                     this.fnProcesarRegistro(oItem);
 
                                 }else{
                                   //se debe solo actualizar el registro no mas en la tabla BTP
-                                  let dFecha = new Date().toJSON().substring(0,10);
-                                  let aFecha = dFecha.split("-");
-                                  let sFecha = aFecha[2]+"-"+aFecha[1]+"-"+aFecha[0];
+       
+                                  let sFecha = formatter.fechaLocalHoyBD();
 
                                   let oHora = new Date().toLocaleTimeString();
 
-                                  this.fnActualizarSolicitudBTP(oItem.IDDCTOBTP, "A", sFecha, oHora, null, null, null, null);
+                                  this.fnActualizarSolicitudBTP(oItem, "A", sFecha, oHora, null, null, null, null);
                                   this.fnActualizarSolicitudECC(oItem, "A");
                                 }
         
@@ -679,6 +945,9 @@ sap.ui.define([
                         }.bind(this)
                     });
                     }
+
+
+
               }
 
             },
@@ -693,9 +962,8 @@ sap.ui.define([
               let iNum1 = parseInt(oItem.CANTIDAD);
               let iNum2 = parseInt(oRegla.CANTIDAD);
               let iDif = iNum2 - iNum1;
-              let dFecha = new Date().toJSON().substring(0,10);
-              let aFecha = dFecha.split("-");
-              let sFecha = aFecha[2]+"-"+aFecha[1]+"-"+aFecha[0];
+
+              let sFecha = formatter.fechaLocalHoyBD();
 
               let oHora = new Date().toLocaleTimeString();
               oRegla.CANTIDAD = iDif;
@@ -703,9 +971,45 @@ sap.ui.define([
               oRegla.HORACARGA = oHora;
 
               let oReglaCreada = await this.fnCrearRegla(oRegla);
-              this.fnActualizarSolicitudBTP(oItem.IDDCTOBTP, "A", sFecha, oHora, oRegla.PRECIOMIN, iDif, oRegla.PORCENTAJEMIN, oRegla.IDREGLA);
+              this.fnActualizarSolicitudBTP(oItem, "A", sFecha, oHora, oRegla.PRECIOMIN, iNum2, oRegla.PORCENTAJEMIN, oRegla.IDREGLA);
               this.fnActualizarSolicitudECC(oItem, "A");
               
+            },
+
+
+            _mergeBatch: function (oModel, sEntity, oEntry) {
+                  return new Promise((resolve, reject) => {
+                      oModel.update(sEntity, oEntry, {
+                          groupId: "batchUpdate",
+                          merge: true
+                      })
+                  })
+              },
+
+          _mergeBatchCreate: function (oModel, sEntity, oEntry) {
+                return new Promise((resolve, reject) => {
+                    oModel.create(sEntity, oEntry, {
+                        groupId: "batchUpdate",
+                        merge: true
+                    })
+                })
+            },
+
+            _submitMerge: function(oModel){
+
+                var that = this;
+                return new Promise((resolve, reject) => {
+                    oModel.submitChanges({
+                        groupId: "batchUpdate",
+                        success: function (oData) {
+                            resolve(oData);
+                        },
+                        error: function (oError) {
+                            reject(oError)
+                        }
+                    });
+                })
+                
             },
 
             fnActualizarSolicitudBTP: function(pSolicitud, pEstado, pFechaAprobSol, pHoraAprobSol, pPrecioRegla, pCantRegla, pProcentRegla, pUUIDReglaCreada){
@@ -716,32 +1020,54 @@ sap.ui.define([
 
               let sEntity = "/ZSD_TB_SOL_MAT_DCTO_BTP";
               var sPath = oModel.createKey(sEntity, {
-                IDDCTOBTP: pSolicitud
-            });
+                IDDCTOBTP: pSolicitud.IDDCTOBTP
+              });
 
                 
                   var mParameters = {};
                   
                   if(pEstado != null){mParameters.ESTATUS = pEstado};
-                  if(pFechaAprobSol != null){mParameters.FECHAAPROBSOL = pFechaAprobSol};
+                  if(pFechaAprobSol != null){
+                    
+                   // mParameters.FECHAAPROBSOL = formatter.dateToBD(pFechaAprobSol.FECHACARGA);
+                    mParameters.FECHAAPROBSOL = pFechaAprobSol
+                    
+                  };
                   if(pHoraAprobSol != null){mParameters.HORAAPROBSOL = pHoraAprobSol};
-                  if(pPrecioRegla != null){mParameters.PRECIOREGLA = pPrecioRegla};
-                  if(pCantRegla != null){mParameters.CANTREGLA = pCantRegla};
-                  if(pProcentRegla != null){mParameters.PROCENTREGLA = pProcentRegla};
+                  if(pPrecioRegla != null){
+                    
+                    mParameters.PRECIOREGLA = pPrecioRegla.toString();
+                    mParameters.PRECIOREGLA     = formatter.parseDecimal(mParameters.PRECIOREGLA); 
+                  
+                  }
+                  if(pCantRegla != null){
+                    
+                    mParameters.CANTREGLA = pCantRegla.toString();
+                    mParameters.CANTREGLA     = formatter.parseDecimal(mParameters.CANTREGLA); 
+                  }
+
+                  if(pProcentRegla != null){
+                    
+                    mParameters.PROCENTREGLA = pProcentRegla.toString();
+                    mParameters.PROCENTREGLA     = formatter.parseDecimal(mParameters.PROCENTREGLA); 
+                  }
                   if(pUUIDReglaCreada != null){mParameters.FK_ZSD_TB_REGLAS_IDREGLA = pUUIDReglaCreada};
 
+                  this._mergeBatch(oModel,sEntity, mParameters );
+
+                  /*
                   oModel.update(sPath, mParameters, {
                       success: function(oReq, oRes){
-                          
-                          //actualizar en ECC
-                         // that.fnActualizarSolicitudECC();
                           if(pEstado == "R"){
                             sap.m.MessageBox.information("Solicitud Rechazada correctamente.");
                           }else if(pEstado == "A"){
-                            sap.m.MessageBox.information("Solicitud Aprobada correctamente.");
+                            if(pSolicitud.CODMOTDERRECH == "006"){
+                              sap.m.MessageBox.information("Se aprueba solicitud con UMP Errónea, se debe corregir regla");
+                            }
+                            else{
+                              sap.m.MessageBox.information("Solicitud Aprobada correctamente.");
+                            }                                                    
                           }
-
-                         
                       },
                       error: function(oError){
                           if(oError.responseText){
@@ -750,6 +1076,7 @@ sap.ui.define([
                           }
                       }
                   });
+                  */
 
             },
 
@@ -758,6 +1085,7 @@ sap.ui.define([
       
 
               let oModel = this.getOwnerComponent().getModel("srvCatalogoECC");
+              let sEntity  = "/SolicitudSet";
               let that = this;
             
               let oNewReg = {};
@@ -771,7 +1099,10 @@ sap.ui.define([
               
               try {
 
-                  oModel.create("/SolicitudSet", oNewReg, {
+                this._mergeBatchCreate(oModel, sEntity, oNewReg );
+
+                /*
+                  oModel.create(sEntity, oNewReg, {
                     success: function (oData, oResponse) {
                       let oDatos = oResponse.data;
                
@@ -781,6 +1112,7 @@ sap.ui.define([
                       console.log('SE PRODUJO UN ERROR: ' + oError)
                     },
                   });
+                  */
                 }
                 catch (err) {
                   let oDatos = oRes.data;
@@ -806,7 +1138,7 @@ sap.ui.define([
 
                 
                 if(pRegistro.FECHACARGA){
-
+//formatter.dateToBD(pRegistro.FECHACARGA);
                 }
 
                 oNewReg.FK_ZSD_TB_SECUENC_IDSECUENCIA  = pRegistro.FK_ZSD_TB_SECUENC_IDSECUENCIA;
@@ -906,21 +1238,17 @@ sap.ui.define([
 
             },
 
-            fnCargarInformacion:  function(){
 
-                this.fnObtenerReglaActual();
 
-            },
+            fnObtenerUsuarioOLD: function(){
 
-            fnObtenerUsuario: function(){
-
-                this.usuario = "SVIDAL";
+                this.usuario = "svidal@seidor.com";
   
                 if (sap.ushell.Container !== undefined) {
                     let sEmail = sap.ushell.Container.getUser().getEmail();
                     if(sEmail){
-                      this.usuario = sEmail.split("@")[0].toUpperCase();
-                      this.fnObtenerDatoUsuario();
+                      this.usuario = sEmail;
+                      this.fnObtenerDatoUsuario(this.usuario);
                     }
                   
                 }
@@ -982,6 +1310,9 @@ sap.ui.define([
 
             fnBuscarSolicitudesFiltros: function(){
 
+              sap.ui.core.BusyIndicator.show(0);
+
+
                 let oModel = this.getOwnerComponent().getModel("srvCatalogoWP");
                 let sEntity = "/ZSD_TB_SOL_MAT_DCTO_BTP";
                 let that = this;
@@ -990,32 +1321,168 @@ sap.ui.define([
                 let oFilter = new sap.ui.model.Filter("ESTATUS", sap.ui.model.FilterOperator.EQ, "P");
                 aFiltros.push(oFilter);
 
-                let dFechaHoy = new Date();
-                let sFechaHoy = dFechaHoy.toJSON().substring(0,10);
+       
+                let sFechHoyFormat = formatter.fechaLocalHoyBD();
 
-                let oFilter2 = new sap.ui.model.Filter("FECHARECEPSOL", sap.ui.model.FilterOperator.EQ, sFechaHoy);
+
+                let oFilter2 = new sap.ui.model.Filter("FECHARECEPSOL", sap.ui.model.FilterOperator.EQ, sFechHoyFormat);
                 aFiltros.push(oFilter2);
 
                 let oFilter3 = new sap.ui.model.Filter("TIPOPROCES", sap.ui.model.FilterOperator.EQ, "M");
                 aFiltros.push(oFilter3);
 
-                let oFiltroFinal = new sap.ui.model.Filter({ filters: aFiltros, and: false });
+                let oFilter4 = new sap.ui.model.Filter("CODUSERAPROB", sap.ui.model.FilterOperator.EQ, this.usuarioBTP);
+                aFiltros.push(oFilter4);
+
+                let oFiltroFinal = new sap.ui.model.Filter({ filters: aFiltros, and: true });
 
 
                 oModel.read(sEntity,{
-                    filters: oFiltroFinal,
+                    filters: [oFiltroFinal],
                     success: function(oReq, oRes){
 
-                        let oDatos = oRes.data;
+                     
+                      let oDatos = oRes.data;
+                       //agrupar registros por fecha
+                      //funcion para agrupar valores
+                      function groupBy(array, f) {
+                        var groups = {};
+                        array.forEach(function(o) {
+                            var group = JSON.stringify(f(o));
+                            groups[group] = groups[group] || [];
+                            groups[group].push(o);
+                        });
+                        return Object.keys(groups).map(function(group) {
+                            return groups[group];
+                        });
+                      }
 
-                        let oJsonModel = new sap.ui.model.json.JSONModel(oDatos);
-                        oJsonModel.setSizeLimit(10000);
-                        that.getView().setModel(oJsonModel, "modeloSolicitudes");
-                        that.getView().getModel("modeloSolicitudes").refresh();
+
+                       
+                      let oModel = that.getView().getModel("modeloReglaActual").getData().results;
+                      var iCantVendedor = 0;
+                      var iCantPreventa = 0;
+                      var iCantCallCenter = 0;
+                      var iCantTradicional = 0;
+                      var iCantFoodservice = 0;
+                      var iCantIndustriales = 0;
+                      var iCantGrandesClientes = 0;
+                      var iCantSupermercados = 0;
+
+                      if(oDatos.results.length == 0){
+
+                          sap.m.MessageBox.information("Usted no dispone de solicitudes asignadas para evaluar");
+                      }
+                      else{
+
+                        //agrupar registros disponibles por modelo, version y color
+                        var datosAgrupados = groupBy(oDatos.results, function(item) {
+                          return [item.FECHADESPACHO];
+                        });
+
+                        let modeloFechasAgrupadas =[];
+                        for(var ele in datosAgrupados)
+                        {
+                          modeloFechasAgrupadas.push(datosAgrupados[ele][0].FECHADESPACHO);
+                        }
+
+
+
+                       console.log(modeloFechasAgrupadas);
+
+
+                      
+                      oDatos.results.forEach(function(elemento){
+                       
+                          let aEsta = oModel.filter(obj=>obj.FK_ZSD_TB_SECUENC_IDSECUENCIA == elemento.FK_ZSD_TB_SECUENC_IDSECUENCIA);
+                          if(aEsta.length > 0){
+
+                            let sDescSec = aEsta[0].DESCRSEC;
+                            let aCampos = sDescSec.split("/");
+                            let sDescSecDatos = "";
+                            aCampos.forEach(element => {
+                                sDescSecDatos = sDescSecDatos + elemento[element] + "/";
+                            });
+
+                            sDescSecDatos = sDescSecDatos.substring(0,sDescSecDatos.length -1 );
+
+                            let oReglaS =  oModel.filter(obj=>obj.DESCRSECDATOS == sDescSecDatos);
+
+                            if(oReglaS.length>0){
+                              elemento.PRECIOREGLA = oReglaS[0].PRECIOMIN;
+                              elemento.PROCENTREGLA = oReglaS[0].PORCENTAJEMIN;
+                              elemento.CANTREGLA = oReglaS[0].CANTIDAD;
+                              elemento.UMPRECIO  = oReglaS[0].UMPRECIO;
+                              elemento.IDREGLA = oReglaS[0].IDREGLA;
+                            }
+
+
+
+                             
+                          }
+
+                          //asignar tipos de solicitudes
+                          if(elemento.CODEJECUTIVO == elemento.CODVENDEDOR){
+                            elemento.tipo_sol = "vendedor";iCantVendedor++;
+                          }else if(elemento.CODEJECUTIVO == elemento.CODPREVENTA){
+                            elemento.tipo_sol = "preventa";iCantPreventa++;
+                          }else if(elemento.CODEJECUTIVO != elemento.CODPREVENTA && elemento.CODEJECUTIVO != elemento.CODVENDEDOR){
+                            elemento.tipo_sol = "call_center";iCantCallCenter++;
+                          }
+                          
+                          switch (elemento.DESCTIPOCLIENTE) {
+                            case "Tradicional":
+                                   elemento.tipo_cli = "tradicional"; iCantTradicional++;
+                              break;
+                              case "Foodservice":
+                                elemento.tipo_cli = "foodservice"; iCantFoodservice++;
+                           break;
+                           case "Industriales":
+                                   elemento.tipo_cli = "industriales";iCantIndustriales++;
+                              break;
+                              case "Grandes Clientes":
+                                   elemento.tipo_cli = "grandes_clientes";iCantGrandesClientes++;
+                              break;
+                              case "Supermercados":
+                                   elemento.tipo_cli = "supermercados";iCantSupermercados++;
+                              break;
+                    
+                            default:
+                              break;
+                          }
+
+
+                      });
+
+                      //setear json model
+
+                      
+                      that.getView().getModel("modelDatos").getData().cantidades.CantTotal = oDatos.results.length;
+                      that.getView().getModel("modelDatos").getData().cantidades.CantVendedor = iCantVendedor;
+                      that.getView().getModel("modelDatos").getData().cantidades.CantPreventa = iCantPreventa;
+                      that.getView().getModel("modelDatos").getData().cantidades.CantCallCenter = iCantCallCenter; 
+                      that.getView().getModel("modelDatos").getData().cantidades.CantTradicional = iCantTradicional;
+                      that.getView().getModel("modelDatos").getData().cantidades.CantFoodservice = iCantFoodservice;
+                      that.getView().getModel("modelDatos").getData().cantidades.CantIndustriales = iCantIndustriales;
+                      that.getView().getModel("modelDatos").getData().cantidades.CantGrandesClientes = iCantGrandesClientes;
+                      that.getView().getModel("modelDatos").getData().cantidades.CantSupermercados = iCantSupermercados;
+
+                      that.getView().getModel("modelDatos").refresh();
+
+                      let oJsonModel = new sap.ui.model.json.JSONModel(oDatos);
+                      oJsonModel.setSizeLimit(10000);
+                      that.getView().setModel(oJsonModel, "modeloSolicitudes");
+                      that.getView().getModel("modeloSolicitudes").refresh();
+                     }
+
+                      sap.ui.core.BusyIndicator.hide();
+                     
 
                     },
                     error: function(oError){
                         console.log(oError);
+
+                        sap.ui.core.BusyIndicator.hide();
                     }
                 });
 
@@ -1055,6 +1522,9 @@ sap.ui.define([
 
             fnBuscarSolicitudes: function(){
 
+              sap.ui.core.BusyIndicator.show(0);
+      
+
                 let oModel = this.getOwnerComponent().getModel("srvCatalogoWP");
                 let sEntity = "/ZSD_TB_SOL_MAT_DCTO_BTP";
                 let that = this;
@@ -1072,7 +1542,6 @@ sap.ui.define([
                         var iCantGrandesClientes = 0;
                         var iCantSupermercados = 0;
 
-                        debugger;
                         oDatos.results.forEach(function(elemento){
                          
                             let aEsta = oModel.filter(obj=>obj.FK_ZSD_TB_SECUENC_IDSECUENCIA == elemento.FK_ZSD_TB_SECUENC_IDSECUENCIA);
@@ -1155,12 +1624,13 @@ sap.ui.define([
                         that.getView().setModel(oJsonModel, "modeloSolicitudes");
                         that.getView().getModel("modeloSolicitudes").refresh();
 
-
+                        sap.ui.core.BusyIndicator.hide();
                        
 
                     },
                     error: function(oError){
                         console.log(oError);
+                        sap.ui.core.BusyIndicator.hide();
                     }
                 });
 
@@ -1174,11 +1644,11 @@ sap.ui.define([
               let that = this;
             
               let oNewReg = {};
-              oNewReg.Material  = "";
-              oNewReg.NroPedidoVM  = "";
-              oNewReg.Posicion         = "";
-              oNewReg.Status          = "";
-              oNewReg.Resultado          = "";
+              oNewReg.Material     = "1010001";
+              oNewReg.NroPedidoVM  = "519317202";
+              oNewReg.Posicion     = "000060";
+              oNewReg.Status       = "R";
+              oNewReg.Resultado    = "TEST";
         
               try {
 
@@ -1223,50 +1693,7 @@ sap.ui.define([
 
            },
 
-            fnObtenerReglaActual: function(){
-
-
-                        let oModel = this.getOwnerComponent().getModel("srvCatalogoWP");
-                        let sEntity = "/ZVINFOMAXREGLA";
-                        let that = this;
-        
-                     //   let aFiltros = [];
-                     //   let oFilter = new sap.ui.model.Filter("FK_ZSD_TB_SECUENC_IDSECUENCIA", sap.ui.model.FilterOperator.EQ, this.usuario);
-                     //   aFiltros.push(oFilter);
-        
-                     //   let oFiltroFinal = new sap.ui.model.Filter({ filters: aFiltros, and: false });
-        
-        
-                        oModel.read(sEntity,{
-                            success: function(oReq, oRes){
-                                let oDatos = oRes.data;
-                                let oJsonModel = new sap.ui.model.json.JSONModel(oDatos);
-                                that.getView().setModel(oJsonModel, "modeloReglaActual");
-                                that.getView().getModel("modeloReglaActual").refresh();
-
-                                that.fnBuscarSolicitudes();
-        
-                                         },
-                            error: function(oError){
-                                console.log(oError);
-                            }
-                        });
-
-          
-
-               
-
-            },
-
-            
-
-
-
-
-
-
-
-
+  
 
         });
     });

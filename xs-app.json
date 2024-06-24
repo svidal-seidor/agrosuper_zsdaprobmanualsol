@@ -12,7 +12,7 @@
     {
       "source": "^/odata/(.*)$",
       "target": "/odata/$1",
-      "destination": "ODATA_ECC",
+      "destination": "ODATA_ECC1",
       "authenticationType": "xsuaa",
       "csrfProtection": false
     },

@@ -1,1 +1,19 @@
 /* Enter your custom styles here */
+.botonReject{
+    padding-left: 0.4375rem !important;
+    padding-right: 0.4375rem !important;
+    border-color: #ffc1df !important;
+    background-image: none !important;
+    background-color: #dc3545 !important;
+    border-color: #ffc1df !important;
+    color: white;
+    border-radius: .5rem !important;
+    font-weight: bold;
+}
+
+
+.botonTab{
+    background-color: #dc3545 !important;
+    color: blue  !important;
+}
+
