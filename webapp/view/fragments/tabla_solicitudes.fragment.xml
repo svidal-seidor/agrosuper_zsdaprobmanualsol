@@ -22,8 +22,11 @@ xmlns:vm="sap.ui.fl.variants"
 id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMove" rowMode="Auto"
         ariaLabelledBy="title" sap.ui.fl:flexibility="sap/m/flexibility/EngineFlex" 
 	alternateRowColors="true"
-					rows="{path: 'modeloSolicitudes>/results',
-						   sorter: {path : 'HORARECEPSOL'}}"
+					rows="{
+						path: 'modeloSolicitudes>/results',
+						sorter: {
+							path : 'HORARECEPSOL'}
+						}"
 				
 
 
@@ -351,10 +354,10 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 							</ui:template>
 						</ui:Column>
 
-						<ui:Column id="HORARECEPSOL" filterProperty="HORARECEPSOL" sortProperty="HORARECEPSOL" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+						<ui:Column id="HORARECEPSOL" filterProperty="HORARECEPSOL" sortProperty="HORARECEPSOL" visible="true" width="6rem"   resizable="true" autoResizable="true" >
 							<Label text="Hora Recepción" />
 							<ui:template>
-								<Text text="{modeloSolicitudes>HORARECEPSOL}" wrapping="false" />
+								<Text text="{path: 'modeloSolicitudes>HORARECEPSOL', type: 'sap.ui.model.odata.type.Time'}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
 						
@@ -422,13 +425,36 @@ id="tabla_ok" sort="onSort" columnResize="onColumnResize" columnMove="onColumnMo
 								<Text text="{modeloSolicitudes>CODMOTDERRECH}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
-												<ui:Column id="MOTDERRECH" filterProperty="MOTDERRECH" sortProperty="MOTDERRECH" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+						
+						<ui:Column id="MOTDERRECH" filterProperty="MOTDERRECH" sortProperty="MOTDERRECH" visible="false" width="6rem"   resizable="true" autoResizable="true" >
 							<Label text="Motivo Rech/Dev" />
 							<ui:template>
 								<Text text="{modeloSolicitudes>MOTDERRECH}" wrapping="false" />
 							</ui:template>
 						</ui:Column>
-	
+
+
+						<ui:Column id="IDDCTOBTP" filterProperty="IDDCTOBTP" sortProperty="IDDCTOBTP" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="ID Solicitud" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>IDDCTOBTP}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+
+						<ui:Column id="FK_ZSD_TB_SECUENC_IDSECUENCIA" filterProperty="FK_ZSD_TB_SECUENC_IDSECUENCIA" sortProperty="FK_ZSD_TB_SECUENC_IDSECUENCIA" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="ID Secuencia" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>FK_ZSD_TB_SECUENC_IDSECUENCIA}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+						
+						<ui:Column id="FK_ZSD_TB_REGLAS_IDREGLA" filterProperty="FK_ZSD_TB_REGLAS_IDREGLA" sortProperty="FK_ZSD_TB_REGLAS_IDREGLA" visible="false" width="6rem"   resizable="true" autoResizable="true" >
+							<Label text="ID Regla" />
+							<ui:template>
+								<Text text="{modeloSolicitudes>FK_ZSD_TB_REGLAS_IDREGLA}" wrapping="false" />
+							</ui:template>
+						</ui:Column>
+						
 		
 					</ui:columns>
 				</ui:Table>

@@ -20,7 +20,7 @@ server:
             url: https://agrosuperscpdev-001-dev-wfprecios-srv.cfapps.us10.hana.ondemand.com
           - path: /odata
             url: https://agrosuperscpdev.us10.services.xfs.cloud.sap
-            destination: ODATA_ECC1
+            destination: ODATA_ECC
     - name: fiori-tools-appreload
       afterMiddleware: compression
       configuration:

@@ -103,13 +103,7 @@
       "srvCatalogoECC": {
         "dataSource": "srvCatalogoECC",
         "preload": false
-      },
-      "srvCatalogoSol": {
-        "dataSource": "srvCatalogoSol",
-        "preload": false
-      }
-
-      
+      } 
     },
     "resources": {
       "css": [

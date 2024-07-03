@@ -131,8 +131,8 @@
 
         		<footer>
 			<OverflowToolbar>
-				<Button text="Prueba odata POST" press="fnOdataTestPost"></Button> 
-              <!--  <Button  text="Prueba odata GET" press="fnOdataGet"></Button>-->
+			<Button text="Prueba odata POST" press="fnOdataTestPost"></Button>  
+            <!--  <Button  text="Prueba odata GET" press="fnOdataGet"></Button> -->
 				<Button text="Aprobar" 		 type="Success" press="fnAprobarMasivo" />
                 <ToolbarSpacer/>
 				<Button text="Rechazar" 	class="botonReject"	 type="Unstyled" press="fnRechazarMasivo" />

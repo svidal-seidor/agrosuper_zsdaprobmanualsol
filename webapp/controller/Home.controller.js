@@ -22,6 +22,7 @@ sap.ui.define([
             usuario: "",
             usuarioBTP:  "",
             formatter: formatter,
+            aMensajesProceso: [],
 
             onInit:  function () {
 
@@ -411,7 +412,10 @@ sap.ui.define([
 { property: "DESCGRCONDCLIENTE", label: "Gr.Cond.Cliente"},
 { property: "TIPOPROCES", label: "Tipo Procesamiento"},
 { property: "CODMOTDERRECH", label: "Cod.Motivo Rech/Dev"},
-{ property: "MOTDERRECH", label: "Motivo Rech/Dev"}
+{ property: "MOTDERRECH", label: "Motivo Rech/Dev"},
+{ property: "IDDCTOBTP", label: "ID Solicitud"},
+{ property: "FK_ZSD_TB_SECUENC_IDSECUENCIA", label: "ID Secuencia"},
+{ property: "FK_ZSD_TB_REGLAS_IDREGLA", label: "ID Regla"}
                     ];
             },
 
@@ -583,7 +587,10 @@ sap.ui.define([
 { key: "DESCGRCONDCLIENTE", label: "Gr.Cond.Cliente", path: "DESCGRCONDCLIENTE"},
 { key: "TIPOPROCES", label: "Tipo Procesamiento", path: "TIPOPROCES"},
 { key: "CODMOTDERRECH", label: "Cod.Motivo Rech/Dev", path: "CODMOTDERRECH"},
-{ key: "MOTDERRECH", label: "Motivo Rech/Dev", path: "MOTDERRECH"}
+{ key: "MOTDERRECH", label: "Motivo Rech/Dev", path: "MOTDERRECH"},
+{ key: "IDDCTOBTP", label: "ID Solicitud", path: "IDDCTOBTP"},
+{ key: "FK_ZSD_TB_SECUENC_IDSECUENCIA", label: "ID Secuencia", path: "FK_ZSD_TB_SECUENC_IDSECUENCIA"},
+{ key: "FK_ZSD_TB_REGLAS_IDREGLA", label: "ID Regla", path: "FK_ZSD_TB_REGLAS_IDREGLA"}
 
                 
               ]);
@@ -644,7 +651,12 @@ sap.ui.define([
                 "DESCGRCONDCLIENTE" : "6rem",
                 "TIPOPROCES" : "6rem",
                 "CODMOTDERRECH" : "6rem",
-                "MOTDERRECH" : "6rem"
+                "MOTDERRECH" : "6rem",
+                "IDDCTOBTP" : "6rem",
+                "FK_ZSD_TB_SECUENC_IDSECUENCIA" : "6rem",
+                "FK_ZSD_TB_REGLAS_IDREGLA" : "6rem",
+
+
 
               };
 
@@ -793,27 +805,34 @@ sap.ui.define([
 
             fnRechazarMasivo: async function(oEvent){
 
+              
+              sap.ui.core.BusyIndicator.show(0);
+
+              this.aMensajesProceso = [];
+              let bProcesar = false;
+
               let aItemsTable = this.getView().byId("tabla_ok").getSelectedIndices();
               if(aItemsTable.length == 0){
                 sap.m.MessageBox.information("Debe seleccionar un registro");
+                sap.ui.core.BusyIndicator.hide();
+
                 return;
               }
 
               for(let i in aItemsTable)
               {
+                
                   let oItemSet =  this.getView().byId("tabla_ok").getContextByIndex(aItemsTable[i]);
-                  
+                  bProcesar = true;
                   let oItem = oItemSet.getObject();
                   //validar si alguno registro del bloque tiene problemas
                     let sResultado = await this.fnValidarEstadoSolicitud(oItem);
                     if(sResultado != "P"){
-                      sap.m.MessageBox.error("Solicitud "+  oItem.PEDIDO + "-"+ oItem.POSPEDIDO +" ya fue evaluada");
+                      //sap.m.MessageBox.error("Solicitud "+  oItem.PEDIDO + "-"+ oItem.POSPEDIDO +" ya fue evaluada");
+                      this.aMensajesProceso.push("Solicitud "+  oItem.PEDIDO + "-"+ oItem.POSPEDIDO +" ya fue evaluada");
+
                     }else{
-                      sap.m.MessageBox.confirm("¿Está seguro que desea rechazar esta solicitud: "+ oItem.PEDIDO + "-"+ oItem.POSPEDIDO  , {
-                        actions: [sap.m.MessageBox.Action.YES, sap.m.MessageBox.Action.NO],
-                        emphasizedAction: sap.m.MessageBox.Action.YES,
-                        onClose: function (sAction) {
-                            if (sAction == "YES"){
+                
 
                               if(oItem.FK_ZSD_TB_REGLAS_IDREGLA != null && oItem.FK_ZSD_TB_REGLAS_IDREGLA != "" ){
 
@@ -832,8 +851,8 @@ sap.ui.define([
                                // oRegla.HORACARGA = oHora;
                   
                               
-                                this.fnActualizarSolicitudBTP(oItem, "R", sFecha, oHora, oRegla.PRECIOMIN, oRegla.CANTIDAD, oRegla.PORCENTAJEMIN, oRegla.IDREGLA);
-                                this.fnActualizarSolicitudECC(oItem, "R");
+                               await  this.fnActualizarSolicitudBTP(oItem, "R", sFecha, oHora, oRegla.PRECIOMIN, oRegla.CANTIDAD, oRegla.PORCENTAJEMIN, oRegla.IDREGLA);
+                               await this.fnActualizarSolicitudECC(oItem, "R");
 
 
 
@@ -883,16 +902,46 @@ sap.ui.define([
 
                                 let oHora = new Date().toLocaleTimeString();
 
-                                this.fnActualizarSolicitudBTP(oItem, "R", sFecha, oHora, oRegla.PRECIOREGLA, oRegla.CANTREGLA, oRegla.PROCENTREGLA, oRegla.IDREGLA);
-                                this.fnActualizarSolicitudECC(oItem, "R");
+                                await this.fnActualizarSolicitudBTP(oItem, "R", sFecha, oHora, oRegla.PRECIOREGLA, oRegla.CANTREGLA, oRegla.PROCENTREGLA, oRegla.IDREGLA);
+                                await this.fnActualizarSolicitudECC(oItem, "R");
                               }
-                                
-
-                            }
-                            
-                        }.bind(this)
-                    });
+   
+                   
+                
                     }
+              }
+
+              sap.ui.core.BusyIndicator.hide();
+              if(bProcesar){
+               // let oModelWP  = this.getOwnerComponent().getModel("srvCatalogoWP");
+               // let oModelECC = this.getOwnerComponent().getModel("srvCatalogoECC");
+                //mostrar mensajes:
+                let sMensaje = "";
+                let iApro = 0, iRech = 0;
+                for(var ele in this.aMensajesProceso){
+                  let obj = this.aMensajesProceso[ele];
+                  if(obj.includes("Solicitud rechazada")){
+                    iRech++;
+                  }else if(obj.includes("Solicitud aprobada")){
+                    iApro++;
+                  }else 
+                  {
+                    sMensaje = sMensaje + obj + "\n";
+                  }
+                }
+                if(iApro == 1){
+                  sMensaje = sMensaje + "Se aprobó solicitud" + "\n";
+                }else if(iApro > 1){
+                  sMensaje = sMensaje + "Se aprobaron "+iApro+" solicitudes" + "\n";
+                }
+
+                if(iRech == 1){
+                  sMensaje = sMensaje + "Se rechazó solicitud" + "\n";
+                }else if(iRech > 1){
+                  sMensaje = sMensaje + "Se rechazaron "+iRech+" solicitudes" + "\n";
+                }
+                sap.m.MessageBox.information(sMensaje);
+                this.aMensajesProceso = [];
               }
 
             },
@@ -900,24 +949,66 @@ sap.ui.define([
 
             fnAprobarMasivo: async function(oEvent){
 
+              sap.ui.core.BusyIndicator.show(0);
+
+              this.aMensajesProceso = [];
+              let bProcesar = false;
+
               let aItemsTable = this.getView().byId("tabla_ok").getSelectedIndices();
               if(aItemsTable.length == 0){
                 sap.m.MessageBox.information("Debe seleccionar un registro");
+                sap.ui.core.BusyIndicator.hide();
                 return;
               }
 
-              
+
               for(let i in aItemsTable)
               {
                   let oItemSet =  this.getView().byId("tabla_ok").getContextByIndex(aItemsTable[i]);
-                  let bProcesar = false;
+                  
                   let oItem = oItemSet.getObject();
                   //validar si alguno registro del bloque tiene problemas
                     let sResultado = await this.fnValidarEstadoSolicitud(oItem);
+                    bProcesar = true;
                     if(sResultado != "P"){
-                      sap.m.MessageBox.error("Solicitud "+  oItem.PEDIDO + "-"+ oItem.POSPEDIDO +" ya fue evaluada");
+                     // sap.m.MessageBox.error("Solicitud "+  oItem.PEDIDO + "-"+ oItem.POSPEDIDO +" ya fue evaluada");
+                      this.aMensajesProceso.push("Solicitud "+  oItem.PEDIDO + "-"+ oItem.POSPEDIDO +" ya fue evaluada");
                     }else{
-                      sap.m.MessageBox.confirm("¿Está seguro que desea aprobar esta solicitud: "+ oItem.PEDIDO + "-"+ oItem.POSPEDIDO  , {
+                  
+                       if(oItem.FK_ZSD_TB_REGLAS_IDREGLA != null && oItem.FK_ZSD_TB_REGLAS_IDREGLA != "" ){
+                            //obtener datos de la regla actual segun la secuencia
+                            let oModel = this.getView().getModel("modeloReglaActual").getData().results;
+                            let oReglaS =  oModel.filter(obj=>obj.IDREGLA == oItem.IDREGLA);
+              
+                            //obtenemos el primer registro
+                            let oRegla = oReglaS[0];
+                            let iNum1 = parseInt(oItem.CANTIDAD);
+                            let iNum2 = parseInt(oRegla.CANTIDAD);
+                            let iDif = iNum2 - iNum1;
+              
+                            let sFecha = formatter.fechaLocalHoyBD();
+              
+                            let oHora = new Date().toLocaleTimeString();
+                            oRegla.CANTIDAD = iDif;
+                            oRegla.USUARIO = this.usuario;
+                            oRegla.HORACARGA = oHora;
+              
+                            let oReglaCreada = await this.fnCrearRegla(oRegla);
+                            await this.fnActualizarSolicitudBTP(oItem, "A", sFecha, oHora, oRegla.PRECIOMIN, iNum2, oRegla.PORCENTAJEMIN, oRegla.IDREGLA);
+                            await this.fnActualizarSolicitudECC(oItem, "A");
+
+                          }else{
+                            //se debe solo actualizar el registro no mas en la tabla BTP
+  
+                            let sFecha = formatter.fechaLocalHoyBD();
+
+                            let oHora = new Date().toLocaleTimeString();
+
+                            await this.fnActualizarSolicitudBTP(oItem, "A", sFecha, oHora, null, null, null, null);
+                            await this.fnActualizarSolicitudECC(oItem, "A");
+                          }
+
+                     /* sap.m.MessageBox.confirm("¿Está seguro que desea aprobar esta solicitud: "+ oItem.PEDIDO + "-"+ oItem.POSPEDIDO  , {
                         actions: [sap.m.MessageBox.Action.YES, sap.m.MessageBox.Action.NO],
                         emphasizedAction: sap.m.MessageBox.Action.YES,
                         onClose: function (sAction) {
@@ -943,11 +1034,41 @@ sap.ui.define([
                             }
                             
                         }.bind(this)
-                    });
+                        
+                    });*/
                     }
+              }
+              sap.ui.core.BusyIndicator.hide();
+              if(bProcesar){
+               // let oModelWP  = this.getOwnerComponent().getModel("srvCatalogoWP");
+               // let oModelECC = this.getOwnerComponent().getModel("srvCatalogoECC");
+                //mostrar mensajes:
+                let sMensaje = "";
+                let iApro = 0, iRech = 0;
+                for(var ele in this.aMensajesProceso){
+                  let obj = this.aMensajesProceso[ele];
+                  if(obj.includes("Solicitud rechazada")){
+                    iRech++;
+                  }else if(obj.includes("Solicitud aprobada")){
+                    iApro++;
+                  }else 
+                  {
+                    sMensaje = sMensaje + obj + "\n";
+                  }
+                }
+                if(iApro == 1){
+                  sMensaje = sMensaje + "Se aprobó solicitud" + "\n";
+                }else if(iApro > 1){
+                  sMensaje = sMensaje + "Se aprobaron "+iApro+" solicitudes" + "\n";
+                }
 
-
-
+                if(iRech == 1){
+                  sMensaje = sMensaje + "Se rechazó solicitud" + "\n";
+                }else if(iRech > 1){
+                  sMensaje = sMensaje + "Se rechazaron "+iRech+" solicitudes" + "\n";
+                }
+                sap.m.MessageBox.information(sMensaje);
+                this.aMensajesProceso = [];
               }
 
             },
@@ -971,9 +1092,12 @@ sap.ui.define([
               oRegla.HORACARGA = oHora;
 
               let oReglaCreada = await this.fnCrearRegla(oRegla);
-              this.fnActualizarSolicitudBTP(oItem, "A", sFecha, oHora, oRegla.PRECIOMIN, iNum2, oRegla.PORCENTAJEMIN, oRegla.IDREGLA);
-              this.fnActualizarSolicitudECC(oItem, "A");
-              
+              await this.fnActualizarSolicitudBTP(oItem, "A", sFecha, oHora, oRegla.PRECIOMIN, iNum2, oRegla.PORCENTAJEMIN, oRegla.IDREGLA);
+              await this.fnActualizarSolicitudECC(oItem, "A");
+          
+
+
+
             },
 
 
@@ -989,7 +1113,7 @@ sap.ui.define([
           _mergeBatchCreate: function (oModel, sEntity, oEntry) {
                 return new Promise((resolve, reject) => {
                     oModel.create(sEntity, oEntry, {
-                        groupId: "batchUpdate",
+                        groupId: "batchCreate",
                         merge: true
                     })
                 })
@@ -1002,17 +1126,43 @@ sap.ui.define([
                     oModel.submitChanges({
                         groupId: "batchUpdate",
                         success: function (oData) {
+
+                            console.log(oData);
                             resolve(oData);
                         },
                         error: function (oError) {
                             reject(oError)
+                            console.log(oError);
                         }
                     });
                 })
-                
             },
 
-            fnActualizarSolicitudBTP: function(pSolicitud, pEstado, pFechaAprobSol, pHoraAprobSol, pPrecioRegla, pCantRegla, pProcentRegla, pUUIDReglaCreada){
+            _submitMergeCreate: function(oModel){
+
+              var that = this;
+              return new Promise((resolve, reject) => {
+                  oModel.submitChanges({
+                      groupId: "batchCreate",
+                      success: function (oData) {
+
+                          console.log(oData);
+                          resolve(oData);
+                      },
+                      error: function (oError) {
+                          reject(oError)
+                          console.log(oError);
+                      }
+                  });
+              })
+          },
+            
+
+            fnActualizarSolicitudBTP: async function(pSolicitud, pEstado, pFechaAprobSol, pHoraAprobSol, pPrecioRegla, pCantRegla, pProcentRegla, pUUIDReglaCreada){
+
+              const oPromise = await new Promise((resolve, reject) => {
+
+           
 
               let that = this;
                                   
@@ -1053,36 +1203,52 @@ sap.ui.define([
                   }
                   if(pUUIDReglaCreada != null){mParameters.FK_ZSD_TB_REGLAS_IDREGLA = pUUIDReglaCreada};
 
-                  this._mergeBatch(oModel,sEntity, mParameters );
+                 // this._mergeBatch(oModel,sEntity, mParameters );
 
-                  /*
+         
                   oModel.update(sPath, mParameters, {
+                      groupId: pSolicitud.IDDCTOBTP,
                       success: function(oReq, oRes){
                           if(pEstado == "R"){
-                            sap.m.MessageBox.information("Solicitud Rechazada correctamente.");
+                            //sap.m.MessageBox.information("Solicitud ");
+                            that.aMensajesProceso.push("Solicitud rechazada "+  pSolicitud.PEDIDO + "-"+ pSolicitud.POSPEDIDO);
+
                           }else if(pEstado == "A"){
                             if(pSolicitud.CODMOTDERRECH == "006"){
-                              sap.m.MessageBox.information("Se aprueba solicitud con UMP Errónea, se debe corregir regla");
+                              //sap.m.MessageBox.information("");
+                              that.aMensajesProceso.push("Solicitud "+  pSolicitud.PEDIDO + "-"+ pSolicitud.POSPEDIDO +" se aprobó con UMP Errónea, se debe corregir regla");
+
                             }
                             else{
-                              sap.m.MessageBox.information("Solicitud Aprobada correctamente.");
+                              //sap.m.MessageBox.information("Solicitud Aprobada correctamente.");
+                              that.aMensajesProceso.push("Solicitud aprobada "+  pSolicitud.PEDIDO + "-"+ pSolicitud.POSPEDIDO);
+
                             }                                                    
                           }
+                          resolve("");
                       },
                       error: function(oError){
                           if(oError.responseText){
                               let obj = JSON.parse(oError.responseText);
-                              MessageBox.error(obj.error.message.value);
+                              //MessageBox.error(obj.error.message.value);
                           }
+                          resolve("");
                       }
                   });
-                  */
+                  
+                });
+          
 
+
+                return oPromise;
             },
 
-            fnActualizarSolicitudECC: function(pRegistro, pEstado){
+            fnActualizarSolicitudECC: async function(pRegistro, pEstado){
 
-      
+              const oPromise = await new Promise((resolve, reject) => {
+
+           
+    
 
               let oModel = this.getOwnerComponent().getModel("srvCatalogoECC");
               let sEntity  = "/SolicitudSet";
@@ -1099,27 +1265,32 @@ sap.ui.define([
               
               try {
 
-                this._mergeBatchCreate(oModel, sEntity, oNewReg );
+               // this._mergeBatchCreate(oModel, sEntity, oNewReg );
 
-                /*
+                
                   oModel.create(sEntity, oNewReg, {
                     success: function (oData, oResponse) {
                       let oDatos = oResponse.data;
-               
+                      resolve("");
                     },
                     error: function (oError) {
                      
                       console.log('SE PRODUJO UN ERROR: ' + oError)
+                      resolve("");
                     },
                   });
-                  */
+                  
                 }
                 catch (err) {
                   let oDatos = oRes.data;
-                
+                  resolve("");
                 }
 
-            
+              });
+        
+
+
+              return oPromise;
           
 
             },
@@ -1194,6 +1365,7 @@ sap.ui.define([
                     resolve("");
                   }
 
+                  
                 });
             
 
@@ -1214,14 +1386,15 @@ sap.ui.define([
               });
 
               oModel.read(sPath,{
+                groupId: pSolicitud.IDDCTOBTP,
                 success: function(oReq, oRes){
                     let oDatos = oRes.data;
                     resolve(oDatos.ESTATUS);
-                    sap.ui.core.BusyIndicator.hide();
+                    //sap.ui.core.BusyIndicator.hide();
 
                 },
                 error: function(oError){
-                  sap.ui.core.BusyIndicator.hide();
+                  //sap.ui.core.BusyIndicator.hide();
                   resolve("");
                 }
               });
@@ -1339,6 +1512,9 @@ sap.ui.define([
 
                 oModel.read(sEntity,{
                     filters: [oFiltroFinal],
+                    sorters: [					
+                      new sap.ui.model.Sorter("HORARECEPSOL", false)
+                    ],
                     success: function(oReq, oRes){
 
                      
@@ -1637,12 +1813,9 @@ sap.ui.define([
             },
 
             fnOdataTestPost: function(){
-
-
       
               let oModel = this.getOwnerComponent().getModel("srvCatalogoECC");
-              let that = this;
-            
+              let that = this; 
               let oNewReg = {};
               oNewReg.Material     = "1010001";
               oNewReg.NroPedidoVM  = "519317202";
@@ -1669,9 +1842,9 @@ sap.ui.define([
                 }
 
 
-           },
+           }
 
-
+/*
             fnOdataGet: function(){
 
 
@@ -1693,7 +1866,7 @@ sap.ui.define([
 
            },
 
-  
+  */
 
         });
     });
